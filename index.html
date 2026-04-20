@@ -275,10 +275,10 @@ function cue(phase) {
     else if (phase === 'exhale') navigator.vibrate(100);
     else if (phase === 'holdout') navigator.vibrate([40,40,40]);
   }
-  if (phase === 'inhale') playTone(528, 0.15);
-  else if (phase === 'holdin') playTone(440, 0.1, 0.08);
-  else if (phase === 'exhale') playTone(396, 0.18);
-  else if (phase === 'holdout') playTone(330, 0.1, 0.08);
+  if (phase === 'inhale') playTone(174, 0.3);
+  else if (phase === 'holdin') playTone(136, 0.25, 0.08);
+  else if (phase === 'exhale') playTone(117, 0.35);
+  else if (phase === 'holdout') playTone(98, 0.25, 0.08);
 }
 
 // ── SETTINGS ──
