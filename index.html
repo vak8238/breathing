@@ -132,6 +132,35 @@
   .bubble .month-tag { font-size: 7px; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
   .bubble.done-meditation .month-tag, .bubble.done-breathing .month-tag, .bubble.done-both .month-tag { color: rgba(255,255,255,0.75); }
 
+  /* ADMIN */
+  .admin-toggle { position: fixed; bottom: calc(20px + var(--safe-bottom)); right: 16px;
+    width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid var(--border);
+    background: var(--surface); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 14px; opacity: 0.4; z-index: 100;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 200; align-items: flex-end; }
+  .admin-panel.visible { display: flex; }
+  .admin-inner { background: var(--surface); width: 100%; border-radius: 20px 20px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom)); max-height: 80vh; overflow-y: auto; }
+  .admin-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .track-row { display: flex; align-items: center; gap: 10px; padding: 10px 0;
+    border-bottom: 0.5px solid var(--border); }
+  .track-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--green);
+    color: #fff; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .track-letter.empty-slot { background: var(--border); color: var(--text-muted); }
+  .track-name-input { flex: 1; font-size: 13px; border: none; background: transparent;
+    color: var(--text); outline: none; padding: 0; }
+  .upload-btn { font-size: 12px; padding: 5px 10px; border-radius: 6px;
+    border: 0.5px solid var(--border); background: transparent; color: var(--text-muted);
+    cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .upload-btn.uploading { opacity: 0.5; }
+  .admin-close { width: 100%; margin-top: 16px; padding: 12px; border-radius: 10px;
+    border: 0.5px solid var(--border); background: transparent; color: var(--text);
+    font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  input[type="file"] { display: none; }
+
   /* CONFIRM */
   .confirm { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: flex-end; }
   .confirm.visible { display: flex; }
@@ -227,6 +256,16 @@
   <div class="divider"></div>
   <div class="bubbles-header"><div class="bubbles-count" id="streak-label">0 done</div></div>
   <div class="grid" id="grid"></div>
+</div>
+
+<button class="admin-toggle" onclick="openAdmin()">⚙️</button>
+
+<div class="admin-panel" id="admin-panel" onclick="adminBgClick(event)">
+  <div class="admin-inner">
+    <div class="admin-title">Manage tracks</div>
+    <div id="track-rows"></div>
+    <button class="admin-close" onclick="closeAdmin()">Done</button>
+  </div>
 </div>
 
 <div class="confirm" id="confirm" onclick="confirmBgClick(event)">
@@ -351,6 +390,70 @@ function cue(phase) {
   else if (phase === 'holdin') playTone(136, 0.25, 0.08);
   else if (phase === 'exhale') playTone(117, 0.35);
   else if (phase === 'holdout') playTone(98, 0.25, 0.08);
+}
+
+// ── ADMIN ──
+function openAdmin() {
+  buildTrackRows();
+  document.getElementById('admin-panel').classList.add('visible');
+}
+function closeAdmin() {
+  document.getElementById('admin-panel').classList.remove('visible');
+  buildTrackToggle();
+}
+function adminBgClick(e) {
+  if (e.target === document.getElementById('admin-panel')) closeAdmin();
+}
+function buildTrackRows() {
+  const container = document.getElementById('track-rows');
+  container.innerHTML = '';
+  LETTERS.forEach(k => {
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    const letter = document.createElement('div');
+    letter.className = 'track-letter' + (TRACKS[k] ? '' : ' empty-slot');
+    letter.textContent = k;
+    const nameInput = document.createElement('input');
+    nameInput.className = 'track-name-input';
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Track name...';
+    nameInput.value = TRACKS[k] ? TRACKS[k].label : '';
+    nameInput.addEventListener('change', () => { if (TRACKS[k]) TRACKS[k].label = nameInput.value; });
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'audio/*';
+    const uploadBtn = document.createElement('button');
+    uploadBtn.className = 'upload-btn';
+    uploadBtn.textContent = TRACKS[k] ? 'Replace' : 'Upload';
+    uploadBtn.onclick = () => fileInput.click();
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      uploadBtn.textContent = '...';
+      uploadBtn.classList.add('uploading');
+      try {
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/audio/${k}.mp3`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY,
+            'Content-Type': 'audio/mpeg', 'x-upsert': 'true' },
+          body: file
+        });
+        if (res.ok || res.status === 200 || res.status === 201) {
+          TRACKS[k] = {
+            label: nameInput.value || file.name.replace(/\.[^.]+$/, ''),
+            url: `${STORAGE_URL}/${k}.mp3?t=${Date.now()}`
+          };
+          if (!nameInput.value) nameInput.value = TRACKS[k].label;
+          letter.className = 'track-letter';
+          uploadBtn.textContent = 'Replace';
+        } else { uploadBtn.textContent = 'Error'; }
+      } catch(e) { uploadBtn.textContent = 'Error'; }
+      uploadBtn.classList.remove('uploading');
+    });
+    row.appendChild(letter); row.appendChild(nameInput);
+    row.appendChild(fileInput); row.appendChild(uploadBtn);
+    container.appendChild(row);
+  });
 }
 
 // ── SETTINGS ──
