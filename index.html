@@ -65,15 +65,16 @@
   /* CONTROLS */
   .interval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .interval-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 8px 10px; }
-  .interval-box-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .interval-row { display: flex; align-items: center; gap: 6px; }
+  .interval-box-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+  .interval-row { display: flex; align-items: stretch; }
   .interval-btn {
-    width: 26px; height: 26px; border-radius: 50%; border: 0.5px solid var(--border);
-    background: var(--bg); font-size: 16px; color: var(--text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent;
+    flex: 1; min-height: 44px; border: none;
+    background: transparent; font-size: 20px; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent; border-radius: 8px;
   }
-  .interval-val { font-size: 18px; font-weight: 400; color: var(--text); flex: 1; text-align: center; }
+  .interval-btn:active { background: var(--border); }
+  .interval-val { font-size: 20px; font-weight: 400; color: var(--text); flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; }
 
   .duration-row { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
   .duration-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -263,7 +264,9 @@ function playTone(freq, dur, vol=0.12) {
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
     o.frequency.value = freq; o.type = 'sine';
-    g.gain.setValueAtTime(vol, ctx.currentTime);
+    // Fade in gently over 0.25s, then fade out
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.25);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
     o.start(); o.stop(ctx.currentTime + dur);
   } catch(e) {}
