@@ -431,6 +431,16 @@ function startBreathing() {
   document.getElementById('start-btn').textContent = 'Stop';
   document.getElementById('start-btn').classList.add('running');
   document.getElementById('med-player').classList.remove('visible');
+
+  // Pre-unlock audio on iOS by loading + immediately pausing during user gesture
+  if (currentTab === 'bm' && TRACKS[currentTrack]) {
+    const medAudio = document.getElementById('med-audio');
+    medAudio.src = TRACKS[currentTrack].url;
+    medAudio.load();
+    const unlock = medAudio.play();
+    if (unlock) unlock.then(() => { medAudio.pause(); medAudio.currentTime = 0; }).catch(()=>{});
+  }
+
   currentPhaseIdx = 0;
   startPhase();
 }
