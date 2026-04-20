@@ -547,6 +547,8 @@ function updateDur() {
 }
 
 // ── BREATHING SESSION ──
+let windingDown = false; // true when timer expired, waiting for exhale to finish
+
 function toggleSession() {
   if (running) stopAll(true);
   else startBreathing();
@@ -554,6 +556,7 @@ function toggleSession() {
 function startBreathing() {
   getAudioCtx();
   running = true;
+  windingDown = false;
   sessionEndTime = Date.now() + durMin * 60 * 1000;
   if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
   document.getElementById('start-btn').textContent = 'Stop';
@@ -574,15 +577,39 @@ function startPhase() {
   const secs = intervals[phase.key];
   if (secs === 0) { currentPhaseIdx = (currentPhaseIdx+1)%4; startPhase(); return; }
   phaseSecondsLeft = secs;
-  cue(phase.key);
+
+  // If winding down, only play the ending exhale tone (lower), then finish after
+  const isEndingExhale = windingDown && phase.key === 'exhale';
+  if (isEndingExhale) {
+    playTone(90, 0.6, 0.14); // noticeably lower ending tone
+    if (navigator.vibrate) navigator.vibrate(150);
+  } else {
+    cue(phase.key);
+  }
+
   updateCircle(phase, secs, secs);
   clearInterval(phaseTimer);
   phaseTimer = setInterval(() => {
     phaseSecondsLeft--;
     const remaining = sessionEndTime - Date.now();
-    if (remaining <= 0) { clearInterval(phaseTimer); breathingComplete(); return; }
-    if (phaseSecondsLeft <= 0) { clearInterval(phaseTimer); currentPhaseIdx = (currentPhaseIdx+1)%4; startPhase(); }
-    else updateCircle(phase, phaseSecondsLeft, secs);
+
+    // Timer expired — set winding down flag, finish current phase normally
+    if (remaining <= 0 && !windingDown) {
+      windingDown = true;
+    }
+
+    if (phaseSecondsLeft <= 0) {
+      clearInterval(phaseTimer);
+      // If winding down and we just finished exhale → done
+      if (windingDown && phase.key === 'exhale') {
+        breathingComplete();
+      } else {
+        currentPhaseIdx = (currentPhaseIdx+1)%4;
+        startPhase();
+      }
+    } else {
+      updateCircle(phase, phaseSecondsLeft, secs);
+    }
   }, 1000);
 }
 function updateCircle(phase, left, total) {
@@ -616,6 +643,7 @@ async function breathingComplete() {
 }
 async function stopAll(manual) {
   running = false;
+  windingDown = false;
   clearInterval(phaseTimer); clearInterval(medTimer);
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
   document.getElementById('start-btn').textContent = 'Start';
