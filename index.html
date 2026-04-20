@@ -108,12 +108,18 @@
   }
   .bubble:active { transform: scale(0.88); }
   .bubble.today { border: 2px solid var(--blue); }
-  .bubble.done { background: var(--green); border-color: var(--green-dark); }
+  .bubble.done-meditation { background: #2e7d32; border-color: #1b5e20; }
+  .bubble.done-breathing  { background: #81c784; border-color: #4caf50; }
+  .bubble.done-both       { background: #1a3a1a; border-color: #0a1f0a; }
   .bubble .day-num { font-size: clamp(9px, 3vw, 12px); font-weight: 500; color: var(--text-muted); line-height: 1; }
-  .bubble.done .day-num { color: #fff; }
-  .bubble.today:not(.done) .day-num { color: var(--blue); }
+  .bubble.done-meditation .day-num,
+  .bubble.done-breathing .day-num,
+  .bubble.done-both .day-num { color: #fff; }
+  .bubble.today:not(.done-meditation):not(.done-breathing):not(.done-both) .day-num { color: var(--blue); }
   .bubble .month-tag { font-size: 7px; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
-  .bubble.done .month-tag { color: rgba(255,255,255,0.75); }
+  .bubble.done-meditation .month-tag,
+  .bubble.done-breathing .month-tag,
+  .bubble.done-both .month-tag { color: rgba(255,255,255,0.75); }
 
   /* CONFIRM */
   .confirm { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: flex-end; }
@@ -237,7 +243,7 @@ let phaseTimer = null;
 let sessionEndTime = null;
 let currentPhaseIdx = 0;
 let phaseSecondsLeft = 0;
-let done = [];
+let done = {};
 let confirmDateStr = null;
 let confirmIsDone = false;
 let settingsSaveTimer = null;
@@ -408,37 +414,47 @@ async function stopSession(manual) {
   document.getElementById('ring').style.strokeDashoffset = 366;
   if (!manual) {
     const ds = dateStr(today);
-    if (!done.includes(ds)) await addDone(ds);
+    if (!(done[ds] && done[ds].includes('breathing'))) await addDone(ds);
   }
 }
 
 // ── COMPLETIONS ──
 async function loadDone() {
   try {
-    const res = await sbFetch('completions?select=date');
+    const res = await sbFetch('completions?select=date,source');
     const data = await res.json();
-    done = data.map(r => r.date);
+    done = {};
+    data.forEach(r => {
+      if (!done[r.date]) done[r.date] = [];
+      done[r.date].push(r.source || 'meditation');
+    });
   } catch(e) {
-    done = JSON.parse(localStorage.getItem('done') || '[]');
+    const arr = JSON.parse(localStorage.getItem('done') || '[]');
+    done = {};
+    arr.forEach(d => { done[d] = ['breathing']; });
   }
   buildGrid();
-  document.getElementById('streak-label').textContent = done.length + ' done';
+  document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
 }
 
 async function addDone(ds) {
-  done.push(ds);
-  localStorage.setItem('done', JSON.stringify(done));
+  if (!done[ds]) done[ds] = [];
+  if (!done[ds].includes('breathing')) done[ds].push('breathing');
+  localStorage.setItem('done', JSON.stringify(Object.keys(done)));
   buildGrid();
-  document.getElementById('streak-label').textContent = done.length + ' done';
-  try { await sbFetch('completions', { method: 'POST', body: JSON.stringify({ date: ds }) }); } catch(e) {}
+  document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
+  try { await sbFetch('completions', { method: 'POST', body: JSON.stringify({ date: ds, source: 'breathing' }) }); } catch(e) {}
 }
 
 async function removeDone(ds) {
-  done = done.filter(d => d !== ds);
-  localStorage.setItem('done', JSON.stringify(done));
+  if (done[ds]) {
+    done[ds] = done[ds].filter(s => s !== 'breathing');
+    if (done[ds].length === 0) delete done[ds];
+  }
+  localStorage.setItem('done', JSON.stringify(Object.keys(done)));
   buildGrid();
-  document.getElementById('streak-label').textContent = done.length + ' done';
-  try { await sbFetch(`completions?date=eq.${ds}`, { method: 'DELETE' }); } catch(e) {}
+  document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
+  try { await sbFetch(`completions?date=eq.${ds}&source=eq.breathing`, { method: 'DELETE' }); } catch(e) {}
 }
 
 // ── GRID ──
@@ -450,7 +466,11 @@ function buildGrid() {
     const d = new Date(today); d.setDate(today.getDate() - i);
     const ds = dateStr(d);
     const el = document.createElement('div');
-    el.className = 'bubble' + (done.includes(ds) ? ' done' : '') + (ds === todayStr ? ' today' : '');
+    const sources = done[ds] || [];
+    const hasMed = sources.includes('meditation');
+    const hasBre = sources.includes('breathing');
+    const doneClass = hasMed && hasBre ? ' done-both' : hasMed ? ' done-meditation' : hasBre ? ' done-breathing' : '';
+    el.className = 'bubble' + doneClass + (ds === todayStr ? ' today' : '');
     const num = document.createElement('div');
     num.className = 'day-num'; num.textContent = d.getDate();
     el.appendChild(num);
