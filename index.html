@@ -59,14 +59,14 @@
   .phase-count { font-size: 26px; font-weight: 300; color: var(--text); line-height: 1; }
   .phase-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-  /* TRACK TOGGLE (B&M) */
+  /* TRACK TOGGLE */
   .track-wrap { margin-bottom: 8px; }
   .track-toggle { display: grid; grid-template-columns: repeat(10, 1fr);
     background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 10px; overflow: hidden; gap: 2px; padding: 2px; }
+    border-radius: 10px; gap: 2px; padding: 2px; }
   .track-btn { padding: 6px 0; font-size: 11px; font-weight: 500; color: var(--text-muted);
-    background: transparent; border: none; cursor: pointer;
-    border-radius: 7px; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    background: transparent; border: none; cursor: pointer; border-radius: 7px;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     transition: background 0.15s, color 0.15s; }
   .track-btn.active { background: var(--green); color: #fff; }
   .track-btn.empty { opacity: 0.25; cursor: default; }
@@ -95,21 +95,22 @@
   .start-btn { width: 100%; padding: 13px; border-radius: 14px; border: none;
     background: var(--blue); color: #fff; font-size: 15px; font-weight: 600;
     cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    transition: opacity 0.15s; margin-bottom: 14px; }
+    transition: opacity 0.15s; margin-bottom: 10px; }
   .start-btn:active { opacity: 0.85; }
   .start-btn.running { background: #e05; }
 
-  /* MEDITATION PLAYER (B&M mode) */
+  /* MED PLAYER */
   .med-player { background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: none; }
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: none; }
   .med-player.visible { display: block; }
-  .med-player-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .med-player-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .med-progress-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .med-progress-fill { height: 100%; background: var(--green); border-radius: 2px; width: 0%; transition: width 1s linear; }
   .med-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; justify-content: space-between; }
 
   /* DIVIDER */
-  .divider { height: 0.5px; background: var(--border); margin: 2px 0 12px; }
+  .divider { height: 0.5px; background: var(--border); margin: 4px 0 12px; }
 
   /* BUBBLES */
   .bubbles-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -153,8 +154,6 @@
 </div>
 
 <div class="scroll">
-
-  <!-- CIRCLE (shared) -->
   <div class="circle-wrap">
     <div class="circle-outer" id="circle">
       <svg class="ring-svg" viewBox="0 0 128 128">
@@ -169,13 +168,11 @@
     </div>
   </div>
 
-  <!-- B&M TRACK SELECTOR -->
   <div class="track-wrap" id="track-wrap" style="display:none">
     <div class="track-toggle" id="track-toggle"></div>
     <div class="track-label-text" id="track-label-text"></div>
   </div>
 
-  <!-- INTERVAL CONTROLS (shared) -->
   <div class="interval-grid">
     <div class="interval-box">
       <div class="interval-box-label">Inhale</div>
@@ -211,10 +208,9 @@
     </div>
   </div>
 
-  <!-- DURATION -->
   <div class="duration-row">
     <div class="duration-top">
-      <span class="duration-label">Breathing duration</span>
+      <span class="duration-label" id="dur-label-text">Breathing duration</span>
       <span class="duration-val" id="dur-label">5 min</span>
     </div>
     <input type="range" min="1" max="30" value="5" id="dur-slider" oninput="updateDur()">
@@ -222,20 +218,15 @@
 
   <button class="start-btn" id="start-btn" onclick="toggleSession()">Start</button>
 
-  <!-- MEDITATION PLAYER (B&M only, shown after breathing ends) -->
   <div class="med-player" id="med-player">
-    <div class="med-player-label" id="med-player-label">Now playing meditation...</div>
+    <div class="med-player-label" id="med-player-label">Meditation starting...</div>
     <div class="med-progress-bg"><div class="med-progress-fill" id="med-prog"></div></div>
     <div class="med-time"><span id="med-cur">0:00</span><span id="med-tot">0:00</span></div>
   </div>
 
   <div class="divider"></div>
-
-  <div class="bubbles-header">
-    <div class="bubbles-count" id="streak-label">0 done</div>
-  </div>
+  <div class="bubbles-header"><div class="bubbles-count" id="streak-label">0 done</div></div>
   <div class="grid" id="grid"></div>
-
 </div>
 
 <div class="confirm" id="confirm" onclick="confirmBgClick(event)">
@@ -256,11 +247,10 @@ const SUPABASE_URL = 'https://zymulpyuxxpqbtqxkrmu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5bXVscHl1eHhwcWJ0cXhrcm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTg1NjAsImV4cCI6MjA5MTI3NDU2MH0.qdl9-l45Fv-prTECEXhUl8S5QeTA8qIJ6YuoRgEYJUc';
 const STORAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/audio`;
 const LETTERS = ['A','B','C','D','E','F','G','H','I','J'];
-
 const TRACKS = {
   A: { label: 'The Call From Within — Mooji', url: `${STORAGE_URL}/A.mp3` },
-  B: { label: 'Head to Heart — Guided', url: `${STORAGE_URL}/B.mp3` },
-  C: { label: "Don't Identify — Mooji", url: `${STORAGE_URL}/C.mp3` },
+  B: { label: 'Head to Heart — Guided',       url: `${STORAGE_URL}/B.mp3` },
+  C: { label: "Don't Identify — Mooji",        url: `${STORAGE_URL}/C.mp3` },
   D: { label: 'The Quiet Immensity Within — Adya', url: `${STORAGE_URL}/D.mp3` },
   E: { label: '478 Breathing Exercise 10 Minutes', url: `${STORAGE_URL}/E.mp3` },
   F: null, G: null, H: null, I: null, J: null
@@ -270,8 +260,7 @@ async function sbFetch(path, opts={}) {
   return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json', 'Prefer': 'return=minimal', ...opts.headers },
-    ...opts
-  });
+    ...opts });
 }
 
 // ── STATE ──
@@ -285,16 +274,17 @@ let phaseTimer = null;
 let medTimer = null;
 let sessionEndTime = null;
 let currentPhaseIdx = 0;
+let phaseSecondsLeft = 0;
 let done = {};
 let confirmDateStr = null;
 let confirmIsDone = false;
 let settingsSaveTimer = null;
 
 const phases = [
-  { key: 'inhale', label: 'Inhale', circle: 'expand'   },
-  { key: 'holdin', label: 'Hold',   circle: 'hold-in'  },
-  { key: 'exhale', label: 'Exhale', circle: 'contract' },
-  { key: 'holdout',label: 'Hold',   circle: 'hold-out' },
+  { key: 'inhale',  label: 'Inhale',  circle: 'expand'   },
+  { key: 'holdin',  label: 'Hold',    circle: 'hold-in'  },
+  { key: 'exhale',  label: 'Exhale',  circle: 'contract' },
+  { key: 'holdout', label: 'Hold',    circle: 'hold-out' },
 ];
 
 const today = new Date(); today.setHours(0,0,0,0);
@@ -307,8 +297,7 @@ function switchTab(tab) {
   document.getElementById('tab-breathe').classList.toggle('active', tab === 'breathe');
   document.getElementById('tab-bm').classList.toggle('active', tab === 'bm');
   document.getElementById('track-wrap').style.display = tab === 'bm' ? 'block' : 'none';
-  document.getElementById('duration-label-text') && (document.getElementById('duration-label-text').textContent =
-    tab === 'bm' ? 'Breathing duration' : 'Total duration');
+  document.getElementById('dur-label-text').textContent = tab === 'bm' ? 'Breathing duration' : 'Total duration';
   schedSaveSettings();
 }
 
@@ -325,19 +314,15 @@ function buildTrackToggle() {
   });
   document.getElementById('track-label-text').textContent = TRACKS[currentTrack] ? TRACKS[currentTrack].label : '';
 }
-
 function selectTrack(k) {
   if (!TRACKS[k]) return;
   currentTrack = k;
-  LETTERS.forEach(l => {
-    const b = document.querySelector(`#track-toggle .track-btn:nth-child(${LETTERS.indexOf(l)+1})`);
-    if (b) b.classList.toggle('active', l === k);
-  });
+  document.querySelectorAll('#track-toggle .track-btn').forEach((b, i) => b.classList.toggle('active', LETTERS[i] === k));
   document.getElementById('track-label-text').textContent = TRACKS[k].label;
   schedSaveSettings();
 }
 
-// ── AUDIO TONES ──
+// ── TONES ──
 let audioCtx = null;
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -375,17 +360,17 @@ async function loadSettings() {
     const rows = await res.json();
     if (Array.isArray(rows)) rows.forEach(r => {
       if (r.key === 'intervals') Object.assign(intervals, JSON.parse(r.value));
-      if (r.key === 'duration') durMin = parseInt(r.value);
-      if (r.key === 'tab') currentTab = r.value;
-      if (r.key === 'track') currentTrack = r.value;
+      if (r.key === 'duration')  durMin = parseInt(r.value);
+      if (r.key === 'tab')       currentTab = r.value;
+      if (r.key === 'track')     currentTrack = r.value;
     });
   } catch(e) {
     try {
       const s = JSON.parse(localStorage.getItem('breath_settings') || '{}');
       if (s.intervals) Object.assign(intervals, s.intervals);
-      if (s.durMin) durMin = s.durMin;
-      if (s.tab) currentTab = s.tab;
-      if (s.track) currentTrack = s.track;
+      if (s.durMin)    durMin = s.durMin;
+      if (s.tab)       currentTab = s.tab;
+      if (s.track)     currentTrack = s.track;
     } catch(e2) {}
   }
   // Apply to UI
@@ -396,6 +381,7 @@ async function loadSettings() {
     document.getElementById('tab-breathe').classList.remove('active');
     document.getElementById('tab-bm').classList.add('active');
     document.getElementById('track-wrap').style.display = 'block';
+    document.getElementById('dur-label-text').textContent = 'Breathing duration';
   }
   buildTrackToggle();
 }
@@ -404,7 +390,6 @@ function schedSaveSettings() {
   clearTimeout(settingsSaveTimer);
   settingsSaveTimer = setTimeout(saveSettings, 1500);
 }
-
 async function saveSettings() {
   const payload = [
     { key: 'intervals', value: JSON.stringify(intervals) },
@@ -433,12 +418,11 @@ function updateDur() {
   schedSaveSettings();
 }
 
-// ── BREATHING SESSION ──
+// ── SESSION ──
 function toggleSession() {
   if (running) stopAll(true);
   else startBreathing();
 }
-
 function startBreathing() {
   getAudioCtx();
   running = true;
@@ -446,6 +430,7 @@ function startBreathing() {
   if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
   document.getElementById('start-btn').textContent = 'Stop';
   document.getElementById('start-btn').classList.add('running');
+  document.getElementById('med-player').classList.remove('visible');
   currentPhaseIdx = 0;
   startPhase();
 }
@@ -454,25 +439,22 @@ function startPhase() {
   if (!running) return;
   const phase = phases[currentPhaseIdx];
   const secs = intervals[phase.key];
-  if (secs === 0) { currentPhaseIdx = (currentPhaseIdx+1)%4; startPhase(); return; }
+  if (secs === 0) { currentPhaseIdx = (currentPhaseIdx + 1) % 4; startPhase(); return; }
+  phaseSecondsLeft = secs;
   cue(phase.key);
   updateCircle(phase, secs, secs);
   clearInterval(phaseTimer);
   phaseTimer = setInterval(() => {
+    phaseSecondsLeft--;
     const remaining = sessionEndTime - Date.now();
     if (remaining <= 0) { clearInterval(phaseTimer); breathingComplete(); return; }
-    const left = --phase._left !== undefined ? phase._left : secs;
-    // use a local counter instead
-  }, 1000);
-  // cleaner approach with closure
-  clearInterval(phaseTimer);
-  let left = secs;
-  phaseTimer = setInterval(() => {
-    left--;
-    const remaining = sessionEndTime - Date.now();
-    if (remaining <= 0) { clearInterval(phaseTimer); breathingComplete(); return; }
-    if (left <= 0) { clearInterval(phaseTimer); currentPhaseIdx = (currentPhaseIdx+1)%4; startPhase(); }
-    else updateCircle(phase, left, secs);
+    if (phaseSecondsLeft <= 0) {
+      clearInterval(phaseTimer);
+      currentPhaseIdx = (currentPhaseIdx + 1) % 4;
+      startPhase();
+    } else {
+      updateCircle(phase, phaseSecondsLeft, secs);
+    }
   }, 1000);
 }
 
@@ -481,28 +463,30 @@ function updateCircle(phase, left, total) {
   document.getElementById('phase-label').textContent = phase.label;
   document.getElementById('phase-count').textContent = left;
   const remaining = Math.max(0, sessionEndTime - Date.now());
-  document.getElementById('phase-sub').textContent = fmt(remaining/1000) + ' left';
-  document.getElementById('ring').style.strokeDashoffset = 366 - (366 * (1 - left/total));
+  document.getElementById('phase-sub').textContent = fmt(remaining / 1000) + ' left';
+  document.getElementById('ring').style.strokeDashoffset = 366 - (366 * (1 - left / total));
 }
 
-async function breathingComplete() {
-  // Reset circle
+function resetCircle(label) {
   document.getElementById('circle').className = 'circle-outer';
-  document.getElementById('phase-label').textContent = currentTab === 'bm' ? 'Meditating' : 'Done ✓';
+  document.getElementById('phase-label').textContent = label;
   document.getElementById('phase-count').textContent = '—';
   document.getElementById('phase-sub').textContent = '';
   document.getElementById('ring').style.strokeDashoffset = 366;
+}
 
+async function breathingComplete() {
   if (currentTab === 'breathe') {
-    // Breathe-only: mark breathing done
     running = false;
     if (wakeLock) { wakeLock.release(); wakeLock = null; }
     document.getElementById('start-btn').textContent = 'Start';
     document.getElementById('start-btn').classList.remove('running');
+    resetCircle('Done ✓');
     const ds = dateStr(today);
     if (!(done[ds] && done[ds].includes('breathing'))) await addDone(ds, 'breathing');
   } else {
-    // B&M: start meditation immediately
+    // B&M: transition to meditation
+    resetCircle('Meditating');
     startMeditation();
   }
 }
@@ -514,17 +498,14 @@ async function stopAll(manual) {
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
   document.getElementById('start-btn').textContent = 'Start';
   document.getElementById('start-btn').classList.remove('running');
-  document.getElementById('circle').className = 'circle-outer';
-  document.getElementById('phase-label').textContent = 'Ready';
-  document.getElementById('phase-count').textContent = '—';
-  document.getElementById('phase-sub').textContent = '';
-  document.getElementById('ring').style.strokeDashoffset = 366;
   document.getElementById('med-player').classList.remove('visible');
+  resetCircle('Ready');
   const medAudio = document.getElementById('med-audio');
   medAudio.pause(); medAudio.currentTime = 0;
+  medAudio.onended = null;
 }
 
-// ── MEDITATION PLAYER (B&M) ──
+// ── MEDITATION PLAYER ──
 function startMeditation() {
   const track = TRACKS[currentTrack];
   if (!track) { finishBM(); return; }
@@ -543,24 +524,22 @@ function startMeditation() {
     await finishBM();
   };
 }
-
 function updateMedProgress() {
-  const medAudio = document.getElementById('med-audio');
-  const dur = medAudio.duration || 0;
-  const cur = medAudio.currentTime || 0;
+  const a = document.getElementById('med-audio');
+  const dur = a.duration || 0, cur = a.currentTime || 0;
   document.getElementById('med-prog').style.width = (dur > 0 ? (cur/dur)*100 : 0) + '%';
   document.getElementById('med-cur').textContent = fmt(cur);
   document.getElementById('med-tot').textContent = fmt(dur);
 }
-
 async function finishBM() {
   running = false;
+  clearInterval(medTimer);
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
   document.getElementById('start-btn').textContent = 'Start';
   document.getElementById('start-btn').classList.remove('running');
-  // Mark both sources
+  resetCircle('Done ✓');
   const ds = dateStr(today);
-  if (!(done[ds] && done[ds].includes('breathing'))) await addDone(ds, 'breathing');
+  if (!(done[ds] && done[ds].includes('breathing')))  await addDone(ds, 'breathing');
   if (!(done[ds] && done[ds].includes('meditation'))) await addDone(ds, 'meditation');
 }
 
@@ -582,7 +561,6 @@ async function loadDone() {
   buildGrid();
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
 }
-
 async function addDone(ds, source) {
   if (!done[ds]) done[ds] = [];
   if (!done[ds].includes(source)) done[ds].push(source);
@@ -591,7 +569,6 @@ async function addDone(ds, source) {
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
   try { await sbFetch('completions', { method: 'POST', body: JSON.stringify({ date: ds, source }) }); } catch(e) {}
 }
-
 async function removeDone(ds, source) {
   if (done[ds]) {
     done[ds] = done[ds].filter(s => s !== source);
@@ -609,7 +586,7 @@ function buildGrid() {
   const todayStr = dateStr(today);
   grid.innerHTML = '';
   for (let i = 0; i < 100; i++) {
-    const d = new Date(today); d.setDate(today.getDate()-i);
+    const d = new Date(today); d.setDate(today.getDate() - i);
     const ds = dateStr(d);
     const sources = done[ds] || [];
     const hasMed = sources.includes('meditation'), hasBre = sources.includes('breathing');
@@ -622,7 +599,7 @@ function buildGrid() {
     if (i === 0 || d.getDate() === 1) {
       const mo = document.createElement('div');
       mo.className = 'month-tag';
-      mo.textContent = d.toLocaleString('default', {month:'short'});
+      mo.textContent = d.toLocaleString('default', { month: 'short' });
       el.appendChild(mo);
     }
     el.addEventListener('click', () => openConfirm(ds, d));
@@ -636,7 +613,7 @@ function openConfirm(ds, d) {
   const sources = done[ds] || [];
   confirmIsDone = sources.length > 0;
   document.getElementById('confirm-title').textContent = confirmIsDone ? 'Undo completion?' : 'Mark as done?';
-  document.getElementById('confirm-sub').textContent = d.toLocaleDateString(undefined, {weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('confirm-sub').textContent = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   document.getElementById('confirm-action-btn').textContent = confirmIsDone ? 'Undo' : 'Mark done';
   document.getElementById('confirm').classList.add('visible');
 }
@@ -644,24 +621,20 @@ function closeConfirm() { document.getElementById('confirm').classList.remove('v
 async function confirmAction() {
   if (!confirmDateStr) return;
   if (confirmIsDone) {
-    // Remove all sources for this date
     const sources = [...(done[confirmDateStr] || [])];
     for (const s of sources) await removeDone(confirmDateStr, s);
   } else {
-    await addDone(confirmDateStr, currentTab === 'bm' ? 'breathing' : 'breathing');
+    await addDone(confirmDateStr, 'breathing');
   }
   closeConfirm();
 }
 function confirmBgClick(e) { if (e.target === document.getElementById('confirm')) closeConfirm(); }
 
-// ── WAKE LOCK re-acquire ──
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && running && 'wakeLock' in navigator) {
+  if (document.visibilityState === 'visible' && running && 'wakeLock' in navigator)
     navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
-  }
 });
 
-// ── INIT ──
 loadSettings();
 loadDone();
 </script>
