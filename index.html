@@ -559,11 +559,11 @@ function startBreathing() {
   document.getElementById('start-btn').textContent = 'Stop';
   document.getElementById('start-btn').classList.add('running');
   document.getElementById('med-player').classList.remove('visible');
-  // Pre-unlock audio for B&M
+  // Pre-load audio for B&M so iOS allows autoplay later
   if (currentTab === 'bm' && TRACKS[currentTrack]) {
     const a = document.getElementById('med-audio');
-    a.src = TRACKS[currentTrack].url; a.load();
-    const p = a.play(); if (p) p.then(() => { a.pause(); a.currentTime = 0; }).catch(()=>{});
+    a.src = TRACKS[currentTrack].url;
+    a.load();
   }
   currentPhaseIdx = 0;
   startPhase();
@@ -631,7 +631,8 @@ function startMedAudio(isBM) {
   const track = TRACKS[currentTrack];
   if (!track) { if (isBM) finishBM(); return; }
   const a = document.getElementById('med-audio');
-  if (!isBM) { a.src = track.url; a.currentTime = 0; }
+  a.src = track.url;
+  a.currentTime = 0;
   a.play().catch(()=>{});
   document.getElementById('med-player').classList.add('visible');
   document.getElementById('med-player-label').textContent = track.label;
