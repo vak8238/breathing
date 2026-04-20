@@ -22,380 +22,188 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #111;
-      --surface: #1c1c1e;
-      --text: #f0f0f0;
-      --text-muted: #888;
-      --border: rgba(255,255,255,0.10);
-    }
+    :root { --bg: #111; --surface: #1c1c1e; --text: #f0f0f0; --text-muted: #888; --border: rgba(255,255,255,0.10); }
   }
   html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
+    height: 100%; background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
   }
   body {
-    display: flex;
-    flex-direction: column;
-    padding-top: calc(var(--safe-top) + 12px);
-    padding-bottom: calc(var(--safe-bottom) + 12px);
-    overflow: hidden;
+    display: flex; flex-direction: column;
+    padding-top: calc(var(--safe-top) + 10px);
+    padding-bottom: calc(var(--safe-bottom) + 10px);
   }
 
-  /* TABS */
-  .tabs {
-    display: flex;
-    padding: 0 16px 12px;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-  .tab {
-    flex: 1;
-    padding: 8px 0;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 10px;
-    border: 0.5px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s, color 0.15s;
-  }
-  .tab.active {
-    background: var(--surface);
-    color: var(--text);
-    border-color: var(--border);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
+  /* SCROLL CONTAINER */
+  .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px 16px; }
 
-  /* PAGES */
-  .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-  .page.active { display: flex; }
-
-  /* ── BREATHE PAGE ── */
-  .breathe-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 20px 12px;
-    overflow-y: auto;
-  }
-
-  /* Circle */
-  .circle-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    min-height: 200px;
-  }
+  /* CIRCLE */
+  .circle-wrap { display: flex; flex-direction: column; align-items: center; padding: 8px 0 10px; }
   .circle-outer {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    position: relative;
-    transition: transform 0.5s ease;
+    width: 120px; height: 120px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface); border: 0.5px solid var(--border);
+    position: relative; transition: transform 0.5s ease, background 0.5s ease, border-color 0.5s ease;
   }
-  .circle-outer.expand { transform: scale(1.18); background: #e8f4fd; border-color: #a8d4f5; }
-  .circle-outer.hold-in { transform: scale(1.18); background: #e8f4fd; border-color: #a8d4f5; }
-  .circle-outer.contract { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
-  .circle-outer.hold-out { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
+  .circle-outer.expand  { transform: scale(1.15); background: #e8f4fd; border-color: #a8d4f5; }
+  .circle-outer.hold-in { transform: scale(1.15); background: #e8f4fd; border-color: #a8d4f5; }
+  .circle-outer.contract  { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
+  .circle-outer.hold-out  { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
   @media (prefers-color-scheme: dark) {
     .circle-outer.expand, .circle-outer.hold-in { background: #1a2f40; border-color: #2a5070; }
     .circle-outer.contract, .circle-outer.hold-out { background: #1a2e1a; border-color: #2a502a; }
   }
-  .circle-inner {
-    text-align: center;
-  }
-  .phase-label {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-  .phase-count {
-    font-size: 36px;
-    font-weight: 300;
-    color: var(--text);
-    line-height: 1;
-  }
-  .phase-sub {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-
-  /* Progress ring */
-  .ring-svg {
-    position: absolute;
-    top: -4px; left: -4px;
-    width: 188px; height: 188px;
-    transform: rotate(-90deg);
-  }
+  .ring-svg { position: absolute; top: -4px; left: -4px; width: 128px; height: 128px; transform: rotate(-90deg); }
   .ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
-  .ring-fill { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 565; stroke-dashoffset: 565; transition: stroke-dashoffset 1s linear; }
+  .ring-fill { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 366; stroke-dashoffset: 366; transition: stroke-dashoffset 1s linear; }
+  .circle-inner { text-align: center; }
+  .phase-label { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .phase-count { font-size: 26px; font-weight: 300; color: var(--text); line-height: 1; }
+  .phase-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-  /* Controls */
-  .controls {
-    width: 100%;
-  }
-  .interval-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .interval-box {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 12px;
-  }
-  .interval-box-label {
-    font-size: 10px;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .interval-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  /* CONTROLS */
+  .interval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .interval-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 8px 10px; }
+  .interval-box-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .interval-row { display: flex; align-items: center; gap: 6px; }
   .interval-btn {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    border: 0.5px solid var(--border);
-    background: var(--bg);
-    font-size: 16px;
-    color: var(--text);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    width: 26px; height: 26px; border-radius: 50%; border: 0.5px solid var(--border);
+    background: var(--bg); font-size: 16px; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
   }
-  .interval-val {
-    font-size: 20px;
-    font-weight: 400;
-    color: var(--text);
-    flex: 1;
-    text-align: center;
-  }
+  .interval-val { font-size: 18px; font-weight: 400; color: var(--text); flex: 1; text-align: center; }
 
-  .duration-row {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 12px;
-  }
-  .duration-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
+  .duration-row { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
+  .duration-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .duration-label { font-size: 12px; color: var(--text-muted); }
   .duration-val { font-size: 13px; font-weight: 500; color: var(--text); }
-  input[type=range] {
-    width: 100%;
-    accent-color: var(--blue);
-    height: 4px;
-  }
+  input[type=range] { width: 100%; accent-color: var(--blue); height: 4px; }
 
   .start-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    border: none;
-    background: var(--blue);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.15s;
+    width: 100%; padding: 13px; border-radius: 14px; border: none;
+    background: var(--blue); color: #fff; font-size: 15px; font-weight: 600;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s; margin-bottom: 14px;
   }
   .start-btn:active { opacity: 0.85; }
   .start-btn.running { background: #e05; }
 
-  /* ── BUBBLES PAGE ── */
-  .bubbles-wrap {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 16px 12px;
-  }
-  .bubbles-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 0 10px;
-  }
+  /* DIVIDER */
+  .divider { height: 0.5px; background: var(--border); margin: 2px 0 12px; }
+
+  /* BUBBLES */
+  .bubbles-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .bubbles-count { font-size: 13px; color: var(--text-muted); }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-  }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
   .bubble {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    cursor: pointer;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
+    width: 100%; aspect-ratio: 1; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
     transition: transform 0.12s, background 0.25s;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
   }
   .bubble:active { transform: scale(0.88); }
   .bubble.today { border: 2px solid var(--blue); }
   .bubble.done { background: var(--green); border-color: var(--green-dark); }
-  .bubble .day-num { font-size: clamp(10px, 3vw, 13px); font-weight: 500; color: var(--text-muted); line-height: 1; }
+  .bubble .day-num { font-size: clamp(9px, 3vw, 12px); font-weight: 500; color: var(--text-muted); line-height: 1; }
   .bubble.done .day-num { color: #fff; }
   .bubble.today:not(.done) .day-num { color: var(--blue); }
-  .bubble .month-tag { font-size: 8px; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
+  .bubble .month-tag { font-size: 7px; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
   .bubble.done .month-tag { color: rgba(255,255,255,0.75); }
 
-  /* confirm popover */
-  .confirm {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 300;
-    align-items: flex-end;
-  }
+  /* CONFIRM */
+  .confirm { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: flex-end; }
   .confirm.visible { display: flex; }
   .confirm-inner {
-    background: var(--surface);
-    width: 100%;
-    border-radius: 20px 20px 0 0;
-    padding: 20px 20px calc(20px + var(--safe-bottom));
-    text-align: center;
+    background: var(--surface); width: 100%; border-radius: 20px 20px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom)); text-align: center;
   }
   .confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .confirm-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
   .confirm-btns { display: flex; gap: 10px; }
-  .confirm-btn {
-    flex: 1; padding: 13px;
-    border-radius: 12px;
-    border: 0.5px solid var(--border);
-    background: transparent;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--text);
-    -webkit-tap-highlight-color: transparent;
-  }
+  .confirm-btn { flex: 1; padding: 13px; border-radius: 12px; border: 0.5px solid var(--border); background: transparent; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); -webkit-tap-highlight-color: transparent; }
   .confirm-btn.danger { color: #e05; border-color: #e05; }
 </style>
 </head>
 <body>
 
-<div class="tabs">
-  <button class="tab active" onclick="showPage('breathe', this)">Breathe</button>
-  <button class="tab" onclick="showPage('bubbles', this)">100 days</button>
-</div>
+<div class="scroll">
 
-<!-- BREATHE PAGE -->
-<div class="page active" id="page-breathe">
-  <div class="breathe-wrap">
-
-    <div class="circle-area">
-      <div class="circle-outer" id="circle">
-        <svg class="ring-svg" viewBox="0 0 188 188">
-          <circle class="ring-bg" cx="94" cy="94" r="90"/>
-          <circle class="ring-fill" id="ring" cx="94" cy="94" r="90"/>
-        </svg>
-        <div class="circle-inner">
-          <div class="phase-label" id="phase-label">Ready</div>
-          <div class="phase-count" id="phase-count">—</div>
-          <div class="phase-sub" id="phase-sub"></div>
-        </div>
+  <!-- CIRCLE -->
+  <div class="circle-wrap">
+    <div class="circle-outer" id="circle">
+      <svg class="ring-svg" viewBox="0 0 128 128">
+        <circle class="ring-bg" cx="64" cy="64" r="58"/>
+        <circle class="ring-fill" id="ring" cx="64" cy="64" r="58"/>
+      </svg>
+      <div class="circle-inner">
+        <div class="phase-label" id="phase-label">Ready</div>
+        <div class="phase-count" id="phase-count">—</div>
+        <div class="phase-sub" id="phase-sub"></div>
       </div>
-    </div>
-
-    <div class="controls">
-      <div class="interval-grid">
-        <div class="interval-box">
-          <div class="interval-box-label">Inhale</div>
-          <div class="interval-row">
-            <button class="interval-btn" onclick="adj('inhale',-1)">−</button>
-            <div class="interval-val" id="val-inhale">4</div>
-            <button class="interval-btn" onclick="adj('inhale',1)">+</button>
-          </div>
-        </div>
-        <div class="interval-box">
-          <div class="interval-box-label">Hold in</div>
-          <div class="interval-row">
-            <button class="interval-btn" onclick="adj('holdin',-1)">−</button>
-            <div class="interval-val" id="val-holdin">4</div>
-            <button class="interval-btn" onclick="adj('holdin',1)">+</button>
-          </div>
-        </div>
-        <div class="interval-box">
-          <div class="interval-box-label">Exhale</div>
-          <div class="interval-row">
-            <button class="interval-btn" onclick="adj('exhale',-1)">−</button>
-            <div class="interval-val" id="val-exhale">4</div>
-            <button class="interval-btn" onclick="adj('exhale',1)">+</button>
-          </div>
-        </div>
-        <div class="interval-box">
-          <div class="interval-box-label">Hold out</div>
-          <div class="interval-row">
-            <button class="interval-btn" onclick="adj('holdout',-1)">−</button>
-            <div class="interval-val" id="val-holdout">4</div>
-            <button class="interval-btn" onclick="adj('holdout',1)">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="duration-row">
-        <div class="duration-top">
-          <span class="duration-label">Total duration</span>
-          <span class="duration-val" id="dur-label">5 min</span>
-        </div>
-        <input type="range" min="1" max="30" value="5" id="dur-slider" oninput="updateDur()">
-      </div>
-
-      <button class="start-btn" id="start-btn" onclick="toggleSession()">Start</button>
     </div>
   </div>
-</div>
 
-<!-- BUBBLES PAGE -->
-<div class="page" id="page-bubbles">
-  <div class="bubbles-wrap">
-    <div class="bubbles-header">
-      <div class="bubbles-count" id="streak-label">0 done</div>
+  <!-- INTERVAL CONTROLS -->
+  <div class="interval-grid">
+    <div class="interval-box">
+      <div class="interval-box-label">Inhale</div>
+      <div class="interval-row">
+        <button class="interval-btn" onclick="adj('inhale',-1)">−</button>
+        <div class="interval-val" id="val-inhale">4</div>
+        <button class="interval-btn" onclick="adj('inhale',1)">+</button>
+      </div>
     </div>
-    <div class="grid" id="grid"></div>
+    <div class="interval-box">
+      <div class="interval-box-label">Hold in</div>
+      <div class="interval-row">
+        <button class="interval-btn" onclick="adj('holdin',-1)">−</button>
+        <div class="interval-val" id="val-holdin">4</div>
+        <button class="interval-btn" onclick="adj('holdin',1)">+</button>
+      </div>
+    </div>
+    <div class="interval-box">
+      <div class="interval-box-label">Exhale</div>
+      <div class="interval-row">
+        <button class="interval-btn" onclick="adj('exhale',-1)">−</button>
+        <div class="interval-val" id="val-exhale">4</div>
+        <button class="interval-btn" onclick="adj('exhale',1)">+</button>
+      </div>
+    </div>
+    <div class="interval-box">
+      <div class="interval-box-label">Hold out</div>
+      <div class="interval-row">
+        <button class="interval-btn" onclick="adj('holdout',-1)">−</button>
+        <div class="interval-val" id="val-holdout">4</div>
+        <button class="interval-btn" onclick="adj('holdout',1)">+</button>
+      </div>
+    </div>
   </div>
+
+  <!-- DURATION -->
+  <div class="duration-row">
+    <div class="duration-top">
+      <span class="duration-label">Total duration</span>
+      <span class="duration-val" id="dur-label">5 min</span>
+    </div>
+    <input type="range" min="1" max="30" value="5" id="dur-slider" oninput="updateDur()">
+  </div>
+
+  <button class="start-btn" id="start-btn" onclick="toggleSession()">Start</button>
+
+  <div class="divider"></div>
+
+  <!-- BUBBLES -->
+  <div class="bubbles-header">
+    <div class="bubbles-count" id="streak-label">0 done</div>
+  </div>
+  <div class="grid" id="grid"></div>
+
 </div>
 
-<!-- CONFIRM POPOVER -->
+<!-- CONFIRM -->
 <div class="confirm" id="confirm" onclick="confirmBgClick(event)">
   <div class="confirm-inner">
     <div class="confirm-title" id="confirm-title">Mark as done?</div>
@@ -408,10 +216,8 @@
 </div>
 
 <script>
-// ── SUPABASE ──
 const SUPABASE_URL = 'https://zymulpyuxxpqbtqxkrmu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5bXVscHl1eHhwcWJ0cXhrcm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTg1NjAsImV4cCI6MjA5MTI3NDU2MH0.qdl9-l45Fv-prTECEXhUl8S5QeTA8qIJ6YuoRgEYJUc';
-const TABLE = 'completions';
 
 async function sbFetch(path, opts={}) {
   return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -425,7 +231,6 @@ let intervals = { inhale: 4, holdin: 4, exhale: 4, holdout: 4 };
 let durMin = 5;
 let running = false;
 let wakeLock = null;
-let sessionTimer = null;
 let phaseTimer = null;
 let sessionEndTime = null;
 let currentPhaseIdx = 0;
@@ -433,60 +238,108 @@ let phaseSecondsLeft = 0;
 let done = [];
 let confirmDateStr = null;
 let confirmIsDone = false;
+let settingsSaveTimer = null;
 
 const phases = [
-  { key: 'inhale',  label: 'Inhale',   circle: 'expand',   haptic: [50] },
-  { key: 'holdin',  label: 'Hold',     circle: 'hold-in',  haptic: [30,50,30] },
-  { key: 'exhale',  label: 'Exhale',   circle: 'contract', haptic: [80] },
-  { key: 'holdout', label: 'Hold',     circle: 'hold-out', haptic: [30,50,30] },
+  { key: 'inhale',  label: 'Inhale',  circle: 'expand'   },
+  { key: 'holdin',  label: 'Hold',    circle: 'hold-in'  },
+  { key: 'exhale',  label: 'Exhale',  circle: 'contract' },
+  { key: 'holdout', label: 'Hold',    circle: 'hold-out' },
 ];
 
 const today = new Date(); today.setHours(0,0,0,0);
 function dateStr(d) { return d.toISOString().split('T')[0]; }
 function fmt(s) { s = Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 
-// ── AUDIO CONTEXT for tone cues ──
+// ── AUDIO ──
 let audioCtx = null;
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-function playTone(freq, dur, vol=0.15) {
+function playTone(freq, dur, vol=0.12) {
   try {
     const ctx = getAudioCtx();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
+    const o = ctx.createOscillator(), g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = freq;
-    o.type = 'sine';
+    o.frequency.value = freq; o.type = 'sine';
     g.gain.setValueAtTime(vol, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
     o.start(); o.stop(ctx.currentTime + dur);
   } catch(e) {}
 }
 function cue(phase) {
-  // haptic first
   if (navigator.vibrate) {
     if (phase === 'inhale') navigator.vibrate(60);
     else if (phase === 'holdin') navigator.vibrate([40,40,40]);
     else if (phase === 'exhale') navigator.vibrate(100);
     else if (phase === 'holdout') navigator.vibrate([40,40,40]);
   }
-  // tone fallback / supplement
-  if (phase === 'inhale') playTone(528, 0.15, 0.12);
+  if (phase === 'inhale') playTone(528, 0.15);
   else if (phase === 'holdin') playTone(440, 0.1, 0.08);
-  else if (phase === 'exhale') playTone(396, 0.18, 0.12);
+  else if (phase === 'exhale') playTone(396, 0.18);
   else if (phase === 'holdout') playTone(330, 0.1, 0.08);
+}
+
+// ── SETTINGS ──
+async function loadSettings() {
+  try {
+    const res = await sbFetch('breathing_settings?select=key,value');
+    const rows = await res.json();
+    if (Array.isArray(rows) && rows.length) {
+      rows.forEach(r => {
+        if (r.key === 'intervals') Object.assign(intervals, JSON.parse(r.value));
+        if (r.key === 'duration') durMin = parseInt(r.value);
+      });
+    }
+  } catch(e) {
+    // fallback localStorage
+    try {
+      const s = JSON.parse(localStorage.getItem('breath_settings') || '{}');
+      if (s.intervals) Object.assign(intervals, s.intervals);
+      if (s.durMin) durMin = s.durMin;
+    } catch(e2) {}
+  }
+  // Apply to UI
+  ['inhale','holdin','exhale','holdout'].forEach(k => {
+    document.getElementById('val-' + k).textContent = intervals[k];
+  });
+  document.getElementById('dur-slider').value = durMin;
+  document.getElementById('dur-label').textContent = durMin + ' min';
+}
+
+function schedSaveSettings() {
+  clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(saveSettings, 1500);
+}
+
+async function saveSettings() {
+  const payload = [
+    { key: 'intervals', value: JSON.stringify(intervals) },
+    { key: 'duration', value: String(durMin) }
+  ];
+  localStorage.setItem('breath_settings', JSON.stringify({ intervals, durMin }));
+  try {
+    for (const row of payload) {
+      await sbFetch('breathing_settings', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(row)
+      });
+    }
+  } catch(e) {}
 }
 
 // ── INTERVAL CONTROLS ──
 function adj(key, delta) {
   intervals[key] = Math.max(0, Math.min(20, intervals[key] + delta));
   document.getElementById('val-' + key).textContent = intervals[key];
+  schedSaveSettings();
 }
 function updateDur() {
   durMin = parseInt(document.getElementById('dur-slider').value);
   document.getElementById('dur-label').textContent = durMin + ' min';
+  schedSaveSettings();
 }
 
 // ── SESSION ──
@@ -496,14 +349,10 @@ function toggleSession() {
 }
 
 function startSession() {
-  // unlock audio
   getAudioCtx();
   running = true;
   sessionEndTime = Date.now() + durMin * 60 * 1000;
-  // Keep screen awake
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(() => {});
-  }
+  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
   document.getElementById('start-btn').textContent = 'Stop';
   document.getElementById('start-btn').classList.add('running');
   currentPhaseIdx = 0;
@@ -514,23 +363,15 @@ function startPhase() {
   if (!running) return;
   const phase = phases[currentPhaseIdx];
   const secs = intervals[phase.key];
-
-  // skip zero-duration phases
-  if (secs === 0) {
-    currentPhaseIdx = (currentPhaseIdx + 1) % 4;
-    startPhase();
-    return;
-  }
-
+  if (secs === 0) { currentPhaseIdx = (currentPhaseIdx + 1) % 4; startPhase(); return; }
   phaseSecondsLeft = secs;
   cue(phase.key);
-
   updateCircle(phase, secs, secs);
   clearInterval(phaseTimer);
   phaseTimer = setInterval(() => {
     phaseSecondsLeft--;
     const remaining = sessionEndTime - Date.now();
-    if (remaining <= 0) { stopSession(false); return; }
+    if (remaining <= 0) { clearInterval(phaseTimer); stopSession(false); return; }
     if (phaseSecondsLeft <= 0) {
       clearInterval(phaseTimer);
       currentPhaseIdx = (currentPhaseIdx + 1) % 4;
@@ -548,39 +389,35 @@ function updateCircle(phase, left, total) {
   document.getElementById('phase-count').textContent = left;
   const remaining = Math.max(0, sessionEndTime - Date.now());
   document.getElementById('phase-sub').textContent = fmt(remaining / 1000) + ' left';
-  const circumference = 565;
-  const offset = circumference - (circumference * (1 - (left / total)));
-  document.getElementById('ring').style.strokeDashoffset = offset;
+  const circ = 366;
+  document.getElementById('ring').style.strokeDashoffset = circ - (circ * (1 - left / total));
 }
 
 async function stopSession(manual) {
   running = false;
   clearInterval(phaseTimer);
-  clearInterval(sessionTimer);
   if (wakeLock) { wakeLock.release(); wakeLock = null; }
   document.getElementById('start-btn').textContent = 'Start';
   document.getElementById('start-btn').classList.remove('running');
   document.getElementById('circle').className = 'circle-outer';
-  document.getElementById('phase-label').textContent = 'Done';
+  document.getElementById('phase-label').textContent = manual ? 'Ready' : 'Done ✓';
   document.getElementById('phase-count').textContent = '—';
   document.getElementById('phase-sub').textContent = '';
-  document.getElementById('ring').style.strokeDashoffset = 565;
-
+  document.getElementById('ring').style.strokeDashoffset = 366;
   if (!manual) {
-    // auto-mark done
     const ds = dateStr(today);
     if (!done.includes(ds)) await addDone(ds);
   }
 }
 
-// ── SUPABASE DONE ──
+// ── COMPLETIONS ──
 async function loadDone() {
   try {
-    const res = await sbFetch(`${TABLE}?select=date`);
+    const res = await sbFetch('completions?select=date');
     const data = await res.json();
     done = data.map(r => r.date);
   } catch(e) {
-    done = JSON.parse(localStorage.getItem('done')||'[]');
+    done = JSON.parse(localStorage.getItem('done') || '[]');
   }
   buildGrid();
   document.getElementById('streak-label').textContent = done.length + ' done';
@@ -591,7 +428,7 @@ async function addDone(ds) {
   localStorage.setItem('done', JSON.stringify(done));
   buildGrid();
   document.getElementById('streak-label').textContent = done.length + ' done';
-  try { await sbFetch(TABLE, { method: 'POST', body: JSON.stringify({ date: ds }) }); } catch(e) {}
+  try { await sbFetch('completions', { method: 'POST', body: JSON.stringify({ date: ds }) }); } catch(e) {}
 }
 
 async function removeDone(ds) {
@@ -599,7 +436,7 @@ async function removeDone(ds) {
   localStorage.setItem('done', JSON.stringify(done));
   buildGrid();
   document.getElementById('streak-label').textContent = done.length + ' done';
-  try { await sbFetch(`${TABLE}?date=eq.${ds}`, { method: 'DELETE' }); } catch(e) {}
+  try { await sbFetch(`completions?date=eq.${ds}`, { method: 'DELETE' }); } catch(e) {}
 }
 
 // ── GRID ──
@@ -613,8 +450,7 @@ function buildGrid() {
     const el = document.createElement('div');
     el.className = 'bubble' + (done.includes(ds) ? ' done' : '') + (ds === todayStr ? ' today' : '');
     const num = document.createElement('div');
-    num.className = 'day-num';
-    num.textContent = d.getDate();
+    num.className = 'day-num'; num.textContent = d.getDate();
     el.appendChild(num);
     if (i === 0 || d.getDate() === 1) {
       const mo = document.createElement('div');
@@ -629,42 +465,30 @@ function buildGrid() {
 
 // ── CONFIRM ──
 function openConfirm(ds, d) {
-  confirmDateStr = ds;
-  confirmIsDone = done.includes(ds);
-  const opts = {weekday: 'short', month: 'short', day: 'numeric'};
+  confirmDateStr = ds; confirmIsDone = done.includes(ds);
   document.getElementById('confirm-title').textContent = confirmIsDone ? 'Undo completion?' : 'Mark as done?';
-  document.getElementById('confirm-sub').textContent = d.toLocaleDateString(undefined, opts);
+  document.getElementById('confirm-sub').textContent = d.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
   document.getElementById('confirm-action-btn').textContent = confirmIsDone ? 'Undo' : 'Mark done';
   document.getElementById('confirm').classList.add('visible');
 }
-function closeConfirm() {
-  document.getElementById('confirm').classList.remove('visible');
-  confirmDateStr = null;
-}
+function closeConfirm() { document.getElementById('confirm').classList.remove('visible'); confirmDateStr = null; }
 async function confirmAction() {
   if (!confirmDateStr) return;
   if (confirmIsDone) await removeDone(confirmDateStr);
   else await addDone(confirmDateStr);
   closeConfirm();
 }
-function confirmBgClick(e) {
-  if (e.target === document.getElementById('confirm')) closeConfirm();
-}
+function confirmBgClick(e) { if (e.target === document.getElementById('confirm')) closeConfirm(); }
 
-// ── TABS ──
-function showPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ── INIT ──
+// ── WAKE LOCK re-acquire ──
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && running && 'wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(() => {});
+    navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
   }
 });
+
+// ── INIT ──
+loadSettings();
 loadDone();
 </script>
 </body>
