@@ -627,12 +627,23 @@ async function stopAll(manual) {
 }
 
 // ── MED AUDIO (shared by B&M and Meditate tab) ──
+function fadeInAudio(a) {
+  a.volume = 0;
+  const fadeStart = Date.now();
+  const fi = setInterval(() => {
+    const t = (Date.now() - fadeStart) / 10000;
+    if (t >= 1) { a.volume = 1; clearInterval(fi); return; }
+    a.volume = t;
+  }, 100);
+}
+
 function startMedAudio(isBM) {
   const track = TRACKS[currentTrack];
   if (!track) { if (isBM) finishBM(); return; }
   const a = document.getElementById('med-audio');
   a.src = track.url;
   a.currentTime = 0;
+  fadeInAudio(a);
   a.play().catch(()=>{});
   document.getElementById('med-player').classList.add('visible');
   document.getElementById('med-player-label').textContent = track.label;
@@ -676,6 +687,7 @@ function openMeditateDay(ds, d) {
   getAudioCtx();
   const a = document.getElementById('med-audio');
   a.src = track.url; a.currentTime = 0;
+  fadeInAudio(a);
   a.play().catch(()=>{});
   if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
 
