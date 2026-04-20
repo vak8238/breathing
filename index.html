@@ -321,11 +321,9 @@ async function saveSettings() {
   localStorage.setItem('breath_settings', JSON.stringify({ intervals, durMin }));
   try {
     for (const row of payload) {
-      await sbFetch('breathing_settings', {
-        method: 'POST',
-        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(row)
-      });
+      // Delete existing then insert fresh
+      await sbFetch(`breathing_settings?key=eq.${row.key}`, { method: 'DELETE' });
+      await sbFetch('breathing_settings', { method: 'POST', body: JSON.stringify(row) });
     }
   } catch(e) {}
 }
