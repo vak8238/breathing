@@ -424,6 +424,7 @@ async function sbFetch(path, opts={}) {
 let intervals = { inhale: 4, holdin: 4, exhale: 4, holdout: 4 };
 let durMin = 5;
 let running = false;
+let wakeLock = null;
 let sessionTimer = null;
 let phaseTimer = null;
 let sessionEndTime = null;
@@ -499,6 +500,10 @@ function startSession() {
   getAudioCtx();
   running = true;
   sessionEndTime = Date.now() + durMin * 60 * 1000;
+  // Keep screen awake
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(() => {});
+  }
   document.getElementById('start-btn').textContent = 'Stop';
   document.getElementById('start-btn').classList.add('running');
   currentPhaseIdx = 0;
@@ -552,6 +557,7 @@ async function stopSession(manual) {
   running = false;
   clearInterval(phaseTimer);
   clearInterval(sessionTimer);
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
   document.getElementById('start-btn').textContent = 'Start';
   document.getElementById('start-btn').classList.remove('running');
   document.getElementById('circle').className = 'circle-outer';
@@ -654,6 +660,11 @@ function showPage(name, btn) {
 }
 
 // ── INIT ──
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && running && 'wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(() => {});
+  }
+});
 loadDone();
 </script>
 </body>
