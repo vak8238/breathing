@@ -659,9 +659,9 @@ function fadeInAudio(a) {
   a.volume = 0;
   const fadeStart = Date.now();
   const fi = setInterval(() => {
-    const t = (Date.now() - fadeStart) / 10000;
-    if (t >= 1) { a.volume = 1; clearInterval(fi); return; }
-    a.volume = t;
+    const t = (Date.now() - fadeStart) / 20000;
+    if (t >= 1) { a.volume = 0.7; clearInterval(fi); return; }
+    a.volume = t * 0.7;
   }, 100);
 }
 
