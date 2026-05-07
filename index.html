@@ -435,9 +435,9 @@ function cue(phase) {
     else if (phase === 'holdout') navigator.vibrate([40,40,40]);
   }
   if (phase === 'inhale')   playTone(174, 0.3,  0.12, 'sine');
-  else if (phase === 'holdin')  playTone(130, 0.7,  0.07, 'triangle');
+  else if (phase === 'holdin')  playTone(130, 0.7,  0.05, 'square');
   else if (phase === 'exhale')  playTone(117, 0.35, 0.12, 'sine');
-  else if (phase === 'holdout') playTone(90,  0.7,  0.07, 'triangle');
+  else if (phase === 'holdout') playTone(90,  0.7,  0.05, 'square');
 }
 
 // ── ADMIN ──
