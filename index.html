@@ -434,8 +434,8 @@ function cue(phase) {
     else if (phase === 'exhale') navigator.vibrate(100);
     else if (phase === 'holdout') navigator.vibrate([40,40,40]);
   }
-  if (phase === 'inhale')   playTone(174, 0.3,  0.12, 'sine');
-  else if (phase === 'holdin')  playTone(110, 0.7,  0.08, 'sine');
+  if (phase === 'inhale')   playTone(184, 0.3,  0.12, 'sine');
+  else if (phase === 'holdin')  playTone(117, 0.7,  0.08, 'sine');
   else if (phase === 'exhale') {
     // Sliding exhale: 110→70Hz over 0.6s
     try {
@@ -443,15 +443,15 @@ function cue(phase) {
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
       o.type = 'sine';
-      o.frequency.setValueAtTime(110, ctx.currentTime);
-      o.frequency.linearRampToValueAtTime(70, ctx.currentTime + 0.6);
+      o.frequency.setValueAtTime(117, ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(74, ctx.currentTime + 0.6);
       g.gain.setValueAtTime(0.001, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.2);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
       o.start(); o.stop(ctx.currentTime + 0.6);
     } catch(e) {}
   }
-  else if (phase === 'holdout') playTone(110, 0.7,  0.08, 'sine');
+  else if (phase === 'holdout') playTone(117, 0.7,  0.08, 'sine');
 }
 
 // ── ADMIN ──
@@ -595,7 +595,7 @@ function startPhase() {
   // If winding down, only play the ending exhale tone (lower), then finish after
   const isEndingExhale = windingDown && phase.key === 'exhale';
   if (isEndingExhale) {
-    playTone(90, 1.5, 0.14); // noticeably lower ending tone
+    playTone(95, 1.5, 0.14); // noticeably lower ending tone
     if (navigator.vibrate) navigator.vibrate(150);
   } else {
     cue(phase.key);
