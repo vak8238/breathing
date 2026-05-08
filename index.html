@@ -595,7 +595,7 @@ function startPhase() {
   // If winding down, only play the ending exhale tone (lower), then finish after
   const isEndingExhale = windingDown && phase.key === 'exhale';
   if (isEndingExhale) {
-    playTone(90, 0.6, 0.14); // noticeably lower ending tone
+    playTone(90, 1.5, 0.14); // noticeably lower ending tone
     if (navigator.vibrate) navigator.vibrate(150);
   } else {
     cue(phase.key);
