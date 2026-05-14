@@ -428,7 +428,7 @@ async function loadBell(key, url) {
   } catch(e) {}
   return bellCache[key];
 }
-function playBell(key, vol=0.9) {
+function playBell(key, vol=0.9, fadeDur=2.0) {
   const buf = bellCache[key];
   if (!buf) return;
   try {
@@ -438,7 +438,9 @@ function playBell(key, vol=0.9) {
     src.buffer = buf;
     src.connect(gain); gain.connect(ctx.destination);
     gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + fadeDur);
     src.start();
+    src.stop(ctx.currentTime + fadeDur);
   } catch(e) {}
 }
 
@@ -455,8 +457,9 @@ function cue(phase) {
     if (phase === 'inhale') navigator.vibrate(60);
     else if (phase === 'exhale') navigator.vibrate(100);
   }
-  if (phase === 'inhale') playBell('inhale', 0.9);
-  else if (phase === 'exhale') playBell('exhale', 0.85);
+  const dur = Math.max(1.0, (intervals[phase] || 4) * 0.9);
+  if (phase === 'inhale') playBell('inhale', 0.9, dur);
+  else if (phase === 'exhale') playBell('exhale', 0.85, dur);
   // holds are silent
 }
 
