@@ -415,43 +415,49 @@ function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-function playTone(freq, dur, vol=0.12, wave='sine') {
+
+// Bell audio cache
+const bellCache = {};
+async function loadBell(key, url) {
+  if (bellCache[key]) return bellCache[key];
   try {
     const ctx = getAudioCtx();
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = freq; o.type = wave;
-    g.gain.setValueAtTime(0.001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.25);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    o.start(); o.stop(ctx.currentTime + dur);
+    const res = await fetch(url);
+    const arr = await res.arrayBuffer();
+    bellCache[key] = await ctx.decodeAudioData(arr);
+  } catch(e) {}
+  return bellCache[key];
+}
+function playBell(key, vol=0.9) {
+  const buf = bellCache[key];
+  if (!buf) return;
+  try {
+    const ctx = getAudioCtx();
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    src.buffer = buf;
+    src.connect(gain); gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    src.start();
   } catch(e) {}
 }
+
+// Preload bells
+const BELL_INHALE_URL = `${STORAGE_URL}/bell_inhale.mp3`;
+const BELL_EXHALE_URL = `${STORAGE_URL}/bell_exhale.mp3`;
+function preloadBells() {
+  loadBell('inhale', BELL_INHALE_URL);
+  loadBell('exhale', BELL_EXHALE_URL);
+}
+
 function cue(phase) {
   if (navigator.vibrate) {
     if (phase === 'inhale') navigator.vibrate(60);
-    else if (phase === 'holdin') navigator.vibrate([40,40,40]);
     else if (phase === 'exhale') navigator.vibrate(100);
-    else if (phase === 'holdout') navigator.vibrate([40,40,40]);
   }
-  if (phase === 'inhale')   playTone(184, 0.3,  0.12, 'sine');
-  else if (phase === 'holdin')  playTone(117, 0.7,  0.08, 'sine');
-  else if (phase === 'exhale') {
-    // Sliding exhale: 110→70Hz over 0.6s
-    try {
-      const ctx = getAudioCtx();
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = 'sine';
-      o.frequency.setValueAtTime(117, ctx.currentTime);
-      o.frequency.linearRampToValueAtTime(74, ctx.currentTime + 0.6);
-      g.gain.setValueAtTime(0.001, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.2);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      o.start(); o.stop(ctx.currentTime + 0.6);
-    } catch(e) {}
-  }
-  else if (phase === 'holdout') playTone(117, 0.7,  0.08, 'sine');
+  if (phase === 'inhale') playBell('inhale', 0.9);
+  else if (phase === 'exhale') playBell('exhale', 0.85);
+  // holds are silent
 }
 
 // ── ADMIN ──
@@ -595,7 +601,7 @@ function startPhase() {
   // If winding down, only play the ending exhale tone (lower), then finish after
   const isEndingExhale = windingDown && phase.key === 'exhale';
   if (isEndingExhale) {
-    playTone(95, 1.5, 0.14); // noticeably lower ending tone
+    playBell('exhale', 0.85); // ending bell
     if (navigator.vibrate) navigator.vibrate(150);
   } else {
     cue(phase.key);
@@ -892,6 +898,7 @@ document.addEventListener('visibilitychange', () => {
 
 loadSettings();
 loadDone();
+preloadBells();
 </script>
 </body>
 </html>
