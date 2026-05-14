@@ -416,42 +416,43 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-// Bell audio cache
-const bellCache = {};
-async function loadBell(key, url) {
-  if (bellCache[key]) return bellCache[key];
-  try {
-    const ctx = getAudioCtx();
-    const res = await fetch(url);
-    const arr = await res.arrayBuffer();
-    bellCache[key] = await ctx.decodeAudioData(arr);
-  } catch(e) {}
-  return bellCache[key];
-}
-function playBell(key, vol=0.9, fadeDur=2.0) {
-  const buf = bellCache[key];
-  if (!buf) return;
-  try {
-    const ctx = getAudioCtx();
-    const src = ctx.createBufferSource();
-    const gain = ctx.createGain();
-    src.buffer = buf;
-    src.connect(gain); gain.connect(ctx.destination);
-    // Hold full volume until last 0.5s, then fade out
-    gain.gain.setValueAtTime(vol, ctx.currentTime);
-    gain.gain.setValueAtTime(vol, ctx.currentTime + Math.max(0, fadeDur - 0.5));
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + fadeDur);
-    src.start();
-    src.stop(ctx.currentTime + fadeDur);
-  } catch(e) {}
-}
-
-// Preload bells
+// Bell audio elements — use HTMLAudioElement so iOS routes to speaker
+const bellEls = {};
 const BELL_INHALE_URL = `${STORAGE_URL}/bell_inhale.mp3`;
 const BELL_EXHALE_URL = `${STORAGE_URL}/bell_exhale.mp3`;
+
 function preloadBells() {
-  loadBell('inhale', BELL_INHALE_URL);
-  loadBell('exhale', BELL_EXHALE_URL);
+  ['inhale', 'exhale'].forEach(key => {
+    const url = key === 'inhale' ? BELL_INHALE_URL : BELL_EXHALE_URL;
+    const el = new Audio();
+    el.src = url;
+    el.preload = 'auto';
+    el.load();
+    bellEls[key] = el;
+  });
+}
+
+function playBell(key, vol=0.9, fadeDur=2.0) {
+  const el = bellEls[key];
+  if (!el) return;
+  // Clone so rapid plays don't conflict
+  const clone = el.cloneNode();
+  clone.volume = vol;
+  clone.play().catch(()=>{});
+  // Fade out only last 0.5s
+  const holdTime = Math.max(0, fadeDur - 0.5) * 1000;
+  const fadeSteps = 20;
+  setTimeout(() => {
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      clone.volume = Math.max(0, vol * (1 - step / fadeSteps));
+      if (step >= fadeSteps) {
+        clearInterval(interval);
+        clone.pause();
+      }
+    }, 500 / fadeSteps);
+  }, holdTime);
 }
 
 function cue(phase) {
@@ -579,7 +580,6 @@ function toggleSession() {
   else startBreathing();
 }
 function startBreathing() {
-  getAudioCtx();
   running = true;
   windingDown = false;
   sessionEndTime = Date.now() + durMin * 60 * 1000;
