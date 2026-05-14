@@ -437,7 +437,9 @@ function playBell(key, vol=0.9, fadeDur=2.0) {
     const gain = ctx.createGain();
     src.buffer = buf;
     src.connect(gain); gain.connect(ctx.destination);
+    // Hold full volume until last 0.5s, then fade out
     gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime + Math.max(0, fadeDur - 0.5));
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + fadeDur);
     src.start();
     src.stop(ctx.currentTime + fadeDur);
