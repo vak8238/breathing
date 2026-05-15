@@ -416,42 +416,60 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-// Bell audio elements — use HTMLAudioElement so iOS routes to speaker
-const bellEls = {};
+// Bell audio pool — pre-create elements so iOS allows repeated playback
+const bellPool = { inhale: [], exhale: [] };
 const BELL_INHALE_URL = `${STORAGE_URL}/bell_inhale.mp3`;
 const BELL_EXHALE_URL = `${STORAGE_URL}/bell_exhale.mp3`;
+const POOL_SIZE = 3;
 
 function preloadBells() {
   ['inhale', 'exhale'].forEach(key => {
     const url = key === 'inhale' ? BELL_INHALE_URL : BELL_EXHALE_URL;
-    const el = new Audio();
-    el.src = url;
-    el.preload = 'auto';
-    el.load();
-    bellEls[key] = el;
+    for (let i = 0; i < POOL_SIZE; i++) {
+      const el = document.createElement('audio');
+      el.src = url;
+      el.preload = 'auto';
+      document.body.appendChild(el);
+      bellPool[key].push({ el, busy: false });
+    }
+  });
+}
+
+function unlockBells() {
+  // Must be called inside a user gesture (Start tap) to unlock all pool elements
+  [...bellPool.inhale, ...bellPool.exhale].forEach(item => {
+    item.el.play().then(() => { item.el.pause(); item.el.currentTime = 0; }).catch(()=>{});
   });
 }
 
 function playBell(key, vol=0.9, fadeDur=2.0) {
-  const el = bellEls[key];
-  if (!el) return;
-  // Clone so rapid plays don't conflict
-  const clone = el.cloneNode();
-  clone.volume = vol;
-  clone.play().catch(()=>{});
-  // Fade out only last 0.5s
+  // Find a free slot in the pool
+  const pool = bellPool[key];
+  let item = pool.find(p => !p.busy);
+  if (!item) item = pool[0]; // fallback: reuse first
+  const el = item.el;
+  item.busy = true;
+  el.currentTime = 0;
+  el.volume = vol;
+  el.play().catch(()=>{});
+
+  // Hold full volume, fade only last 0.5s
   const holdTime = Math.max(0, fadeDur - 0.5) * 1000;
-  const fadeSteps = 20;
-  setTimeout(() => {
+  const fadeMs = 500;
+  const steps = 20;
+  const fadeTimer = setTimeout(() => {
     let step = 0;
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       step++;
-      clone.volume = Math.max(0, vol * (1 - step / fadeSteps));
-      if (step >= fadeSteps) {
-        clearInterval(interval);
-        clone.pause();
+      el.volume = Math.max(0, vol * (1 - step / steps));
+      if (step >= steps) {
+        clearInterval(iv);
+        el.pause();
+        el.currentTime = 0;
+        el.volume = vol;
+        item.busy = false;
       }
-    }, 500 / fadeSteps);
+    }, fadeMs / steps);
   }, holdTime);
 }
 
@@ -580,6 +598,7 @@ function toggleSession() {
   else startBreathing();
 }
 function startBreathing() {
+  unlockBells();
   running = true;
   windingDown = false;
   sessionEndTime = Date.now() + durMin * 60 * 1000;
