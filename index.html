@@ -443,21 +443,20 @@ function unlockBells() {
 }
 
 function playBell(key, vol=0.9, fadeDur=2.0) {
-  // Find a free slot in the pool
   const pool = bellPool[key];
   let item = pool.find(p => !p.busy);
-  if (!item) item = pool[0]; // fallback: reuse first
+  if (!item) item = pool[0];
   const el = item.el;
   item.busy = true;
   el.currentTime = 0;
   el.volume = vol;
   el.play().catch(()=>{});
 
-  // Hold full volume, fade only last 0.5s
-  const holdTime = Math.max(0, fadeDur - 0.5) * 1000;
-  const fadeMs = 500;
-  const steps = 20;
-  const fadeTimer = setTimeout(() => {
+  // Play at full volume for the whole phase duration, then fade over 1s
+  const holdTime = fadeDur * 1000;
+  const fadeMs = 1000;
+  const steps = 30;
+  setTimeout(() => {
     let step = 0;
     const iv = setInterval(() => {
       step++;
