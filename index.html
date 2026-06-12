@@ -39,25 +39,22 @@
 
   /* CIRCLE */
   .circle-wrap { display: flex; flex-direction: column; align-items: center; padding: 8px 0 10px; }
-  .circle-outer { width: 120px; height: 120px; border-radius: 50%;
+  .circle-outer { width: 130px; height: 130px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    background: var(--surface); border: 0.5px solid var(--border);
-    position: relative; transition: transform 0.5s ease, background 0.5s ease, border-color 0.5s ease; }
-  .circle-outer.expand  { transform: scale(1.15); background: #e8f4fd; border-color: #a8d4f5; }
-  .circle-outer.hold-in { transform: scale(1.15); background: #e8f4fd; border-color: #a8d4f5; }
-  .circle-outer.contract  { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
-  .circle-outer.hold-out  { transform: scale(0.88); background: #edf7ed; border-color: #a8dca8; }
+    background: var(--surface); border: 3px solid var(--border);
+    position: relative; transition: background 0.4s ease, border-color 0.4s ease; }
+  .circle-outer.inhale  { background: #e6f4ea; border-color: #4caf50; }
+  .circle-outer.hold    { background: #fffde7; border-color: #fbc02d; }
+  .circle-outer.exhale  { background: #e3f2fd; border-color: #2196f3; }
   @media (prefers-color-scheme: dark) {
-    .circle-outer.expand, .circle-outer.hold-in { background: #1a2f40; border-color: #2a5070; }
-    .circle-outer.contract, .circle-outer.hold-out { background: #1a2e1a; border-color: #2a502a; }
+    .circle-outer.inhale  { background: #1a3a1e; border-color: #4caf50; }
+    .circle-outer.hold    { background: #2a2400; border-color: #fbc02d; }
+    .circle-outer.exhale  { background: #0d2137; border-color: #2196f3; }
   }
-  .ring-svg { position: absolute; top: -4px; left: -4px; width: 128px; height: 128px; transform: rotate(-90deg); }
-  .ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
-  .ring-fill { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 366; stroke-dashoffset: 366; transition: stroke-dashoffset 1s linear; }
   .circle-inner { text-align: center; }
-  .phase-label { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
-  .phase-count { font-size: 26px; font-weight: 300; color: var(--text); line-height: 1; }
-  .phase-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .phase-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: 0.3px; }
+  .phase-count { font-size: 36px; font-weight: 200; color: var(--text); line-height: 1; }
+  .phase-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
 
   /* TRACK TOGGLE (shared) */
   .track-wrap { margin-bottom: 8px; }
@@ -202,10 +199,7 @@
   <!-- CIRCLE: shown on breathe + bm only -->
   <div class="circle-wrap" id="circle-wrap">
     <div class="circle-outer" id="circle">
-      <svg class="ring-svg" viewBox="0 0 128 128">
-        <circle class="ring-bg" cx="64" cy="64" r="58"/>
-        <circle class="ring-fill" id="ring" cx="64" cy="64" r="58"/>
-      </svg>
+
       <div class="circle-inner">
         <div class="phase-label" id="phase-label">Ready</div>
         <div class="phase-count" id="phase-count">—</div>
@@ -347,10 +341,10 @@ let confirmIsDone = false;
 let settingsSaveTimer = null;
 
 const phases = [
-  { key: 'inhale',  label: 'Inhale',  circle: 'expand'   },
-  { key: 'holdin',  label: 'Hold',    circle: 'hold-in'  },
-  { key: 'exhale',  label: 'Exhale',  circle: 'contract' },
-  { key: 'holdout', label: 'Hold',    circle: 'hold-out' },
+  { key: 'inhale',  label: 'Inhale',  circle: 'inhale' },
+  { key: 'holdin',  label: 'Hold',    circle: 'hold'   },
+  { key: 'exhale',  label: 'Exhale',  circle: 'exhale' },
+  { key: 'holdout', label: 'Hold',    circle: 'hold'   },
 ];
 
 const today = new Date(); today.setHours(0,0,0,0);
@@ -442,21 +436,20 @@ function unlockBells() {
   });
 }
 
-function playBell(key, vol=0.9, fadeDur=2.0) {
+function playBell(key, vol=0.9, phaseDur=4.0) {
   const pool = bellPool[key];
   let item = pool.find(p => !p.busy);
-  if (!item) item = pool[0];
+  if (!item) { item = pool[0]; item.el.pause(); item.el.currentTime = 0; }
   const el = item.el;
   item.busy = true;
   el.currentTime = 0;
   el.volume = vol;
   el.play().catch(()=>{});
 
-  // Play at full volume for the whole phase duration, then fade over 1s
-  const holdTime = fadeDur * 1000;
+  // After phase ends, fade out over 1 second
   const fadeMs = 1000;
   const steps = 30;
-  setTimeout(() => {
+  const t = setTimeout(() => {
     let step = 0;
     const iv = setInterval(() => {
       step++;
@@ -469,7 +462,9 @@ function playBell(key, vol=0.9, fadeDur=2.0) {
         item.busy = false;
       }
     }, fadeMs / steps);
-  }, holdTime);
+  }, phaseDur * 1000);
+  // Store timer on item so we can cancel if needed
+  item.fadeTimer = t;
 }
 
 function cue(phase) {
@@ -477,7 +472,7 @@ function cue(phase) {
     if (phase === 'inhale') navigator.vibrate(60);
     else if (phase === 'exhale') navigator.vibrate(100);
   }
-  const dur = Math.max(1.0, (intervals[phase] || 4) * 0.9);
+  const dur = intervals[phase] || 4;
   if (phase === 'inhale') playBell('inhale', 0.9, dur);
   else if (phase === 'exhale') playBell('exhale', 0.85, dur);
   // holds are silent
@@ -661,14 +656,12 @@ function updateCircle(phase, left, total) {
   document.getElementById('phase-count').textContent = left;
   const remaining = Math.max(0, sessionEndTime - Date.now());
   document.getElementById('phase-sub').textContent = fmt(remaining/1000) + ' left';
-  document.getElementById('ring').style.strokeDashoffset = 366 - (366*(1 - left/total));
 }
 function resetCircle(label) {
   document.getElementById('circle').className = 'circle-outer';
   document.getElementById('phase-label').textContent = label;
   document.getElementById('phase-count').textContent = '—';
   document.getElementById('phase-sub').textContent = '';
-  document.getElementById('ring').style.strokeDashoffset = 366;
 }
 async function breathingComplete() {
   if (currentTab === 'breathe') {
