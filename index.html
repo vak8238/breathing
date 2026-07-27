@@ -22,12 +22,22 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
     -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
   body { display: flex; flex-direction: column;
-    padding-top: calc(var(--safe-top) + 10px);
-    padding-bottom: calc(var(--safe-bottom) + 10px); }
+    padding-top: calc(var(--safe-top) + 8px);
+    padding-bottom: calc(var(--safe-bottom) + 8px); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; padding: 0 16px 10px; flex-shrink: 0; }
+  .tab { flex: 1; padding: 8px 0; font-size: 13px; font-weight: 500;
+    border-radius: 10px; border: 0.5px solid var(--border);
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    transition: background 0.15s, color 0.15s; }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
   .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px 16px; }
 
   /* TRACK TOGGLE */
-  .track-wrap { margin-bottom: 10px; }
+  .track-wrap { margin-bottom: 6px; }
   .track-toggle { display: grid; grid-template-columns: repeat(10, 1fr);
     background: var(--surface); border: 0.5px solid var(--border);
     border-radius: 10px; gap: 2px; padding: 2px; }
@@ -35,33 +45,36 @@
     background: transparent; border: none; cursor: pointer; border-radius: 7px;
     -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     transition: background 0.15s, color 0.15s; }
-  .track-btn.active { background: var(--green); color: #fff; }
+  .track-btn.active  { background: var(--green); color: #fff; }
+  .track-btn.active2 { background: var(--blue);  color: #fff; }
   .track-btn.empty { opacity: 0.25; cursor: default; }
   .track-label-text { font-size: 10px; color: var(--text-muted); text-align: center;
-    margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* MED PLAYER */
+  /* PLAYER */
   .med-player { background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: none; }
+    border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; margin-top: 8px; display: none; }
   .med-player.visible { display: block; }
-  .med-player-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px;
+  .med-player.done-track { opacity: 0.5; }
+  .med-player-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .med-player.active2 .med-player-label { color: var(--blue); }
   .med-progress-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .med-progress-fill { height: 100%; background: var(--green); border-radius: 2px; width: 0%; transition: width 1s linear; }
-  .med-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; justify-content: space-between; }
+  .med-player.active2 .med-progress-fill { background: var(--blue); }
+  .med-time { font-size: 11px; color: var(--text-muted); margin-top: 3px; display: flex; justify-content: space-between; }
 
-  .med-stop-btn { width: 100%; padding: 13px; border-radius: 14px; border: none;
-    background: #e05; color: #fff; font-size: 15px; font-weight: 600;
-    cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    margin-bottom: 10px; display: none; }
-  .med-stop-btn.visible { display: block; }
-  .med-done-btn { width: 100%; padding: 13px; border-radius: 14px;
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 8px; margin-bottom: 10px; display: none; }
+  .btn-row.visible { display: flex; }
+  .stop-btn { flex: 1; padding: 13px; border-radius: 14px; border: none;
+    background: #e05; color: #fff; font-size: 13px; font-weight: 600;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .done-btn { flex: 1; padding: 13px; border-radius: 14px;
     border: 1.5px solid var(--green); background: transparent; color: var(--green);
-    font-size: 15px; font-weight: 600; cursor: pointer;
-    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    margin-bottom: 10px; display: none; }
-  .med-done-btn.visible { display: block; }
-  .med-done-btn.undo { border-color: var(--text-muted); color: var(--text-muted); }
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .done-btn.undo { border-color: var(--text-muted); color: var(--text-muted); }
 
   /* DIVIDER */
   .divider { height: 0.5px; background: var(--border); margin: 4px 0 12px; }
@@ -77,14 +90,13 @@
     -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
   .bubble:active { transform: scale(0.88); }
   .bubble.today { border: 2px solid var(--blue); }
-  .bubble.done-breathing  { background: #81c784; border-color: #4caf50; }
   .bubble.done-meditation { background: #2e7d32; border-color: #1b5e20; }
-  .bubble.done-both       { background: #1a3a1a; border-color: #0a1f0a; }
+  .bubble.done-2m         { background: #1a3a1a; border-color: #0a1f0a; }
   .bubble .day-num { font-size: clamp(9px, 3vw, 12px); font-weight: 500; color: var(--text-muted); line-height: 1; }
-  .bubble.done-breathing .day-num, .bubble.done-meditation .day-num, .bubble.done-both .day-num { color: #fff; }
-  .bubble.today:not(.done-breathing):not(.done-meditation):not(.done-both) .day-num { color: var(--blue); }
+  .bubble.done-meditation .day-num, .bubble.done-2m .day-num { color: #fff; }
+  .bubble.today:not(.done-meditation):not(.done-2m) .day-num { color: var(--blue); }
   .bubble .month-tag { font-size: 7px; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
-  .bubble.done-breathing .month-tag, .bubble.done-meditation .month-tag, .bubble.done-both .month-tag { color: rgba(255,255,255,0.75); }
+  .bubble.done-meditation .month-tag, .bubble.done-2m .month-tag { color: rgba(255,255,255,0.75); }
 
   /* ADMIN */
   .admin-toggle { position: fixed; bottom: calc(20px + var(--safe-bottom)); right: 16px;
@@ -130,20 +142,44 @@
 </head>
 <body>
 
+<div class="tabs">
+  <button class="tab active" id="tab-m"  onclick="switchTab('m')">M</button>
+  <button class="tab"        id="tab-2m" onclick="switchTab('2m')">2M</button>
+</div>
+
 <div class="scroll">
-  <div class="track-wrap">
-    <div class="track-toggle" id="track-toggle"></div>
-    <div class="track-label-text" id="track-label-text"></div>
+
+  <!-- Track selector 1 (M + 2M) -->
+  <div class="track-wrap" id="track-wrap-1">
+    <div class="track-toggle" id="track-toggle-1"></div>
+    <div class="track-label-text" id="track-label-1"></div>
   </div>
 
-  <div class="med-player" id="med-player">
-    <div class="med-player-label" id="med-player-label">Select a day to begin</div>
-    <div class="med-progress-bg"><div class="med-progress-fill" id="med-prog"></div></div>
-    <div class="med-time"><span id="med-cur">0:00</span><span id="med-tot">0:00</span></div>
+  <!-- Track selector 2 (2M only) -->
+  <div class="track-wrap" id="track-wrap-2" style="display:none">
+    <div class="track-toggle" id="track-toggle-2"></div>
+    <div class="track-label-text" id="track-label-2"></div>
   </div>
 
-  <button class="med-stop-btn" id="med-stop-btn" onclick="stopMeditate()">Stop</button>
-  <button class="med-done-btn" id="med-done-btn" onclick="handleMedDoneBtn()">✓ Done</button>
+  <!-- Player 1 -->
+  <div class="med-player" id="player-1">
+    <div class="med-player-label" id="player-1-label"></div>
+    <div class="med-progress-bg"><div class="med-progress-fill" id="prog-1"></div></div>
+    <div class="med-time"><span id="cur-1">0:00</span><span id="tot-1">0:00</span></div>
+  </div>
+
+  <!-- Player 2 (2M only) -->
+  <div class="med-player active2" id="player-2">
+    <div class="med-player-label" id="player-2-label"></div>
+    <div class="med-progress-bg"><div class="med-progress-fill" id="prog-2"></div></div>
+    <div class="med-time"><span id="cur-2">0:00</span><span id="tot-2">0:00</span></div>
+  </div>
+
+  <!-- Stop / Done -->
+  <div class="btn-row" id="btn-row">
+    <button class="stop-btn" onclick="stopSession()">Stop</button>
+    <button class="done-btn" id="done-btn" onclick="handleDoneBtn()">✓ Done</button>
+  </div>
 
   <div class="divider"></div>
   <div class="bubbles-header"><div class="bubbles-count" id="streak-label">0 done</div></div>
@@ -171,7 +207,8 @@
   </div>
 </div>
 
-<audio id="med-audio" preload="none"></audio>
+<audio id="audio-1" preload="none"></audio>
+<audio id="audio-2" preload="none"></audio>
 
 <script>
 const SUPABASE_URL = 'https://zymulpyuxxpqbtqxkrmu.supabase.co';
@@ -179,13 +216,13 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const STORAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/audio`;
 const LETTERS = ['A','B','C','D','E','F','G','H','I','J'];
 const TRACKS = {
-  A: { label: 'The Call From Within — Mooji', url: `${STORAGE_URL}/A.mp3` },
-  B: { label: 'Head to Heart — Guided',       url: `${STORAGE_URL}/B.mp3` },
-  C: { label: "Don't Identify — Mooji",        url: `${STORAGE_URL}/C.mp3` },
-  D: { label: 'The Quiet Immensity Within — Adya', url: `${STORAGE_URL}/D.mp3` },
-  E: { label: 'Deep Relaxation Visualisation', url: `${STORAGE_URL}/E.mp3` },
-  F: { label: 'Om Gam 15',                     url: `${STORAGE_URL}/F.mp3` },
-  G: { label: 'Guided Morning 10',             url: `${STORAGE_URL}/G.mp3` },
+  A: { label: 'The Call From Within — Mooji',      url: `${STORAGE_URL}/A.mp3` },
+  B: { label: 'Head to Heart — Guided',             url: `${STORAGE_URL}/B.mp3` },
+  C: { label: "Don't Identify — Mooji",             url: `${STORAGE_URL}/C.mp3` },
+  D: { label: 'The Quiet Immensity Within — Adya',  url: `${STORAGE_URL}/D.mp3` },
+  E: { label: 'Deep Relaxation Visualisation',      url: `${STORAGE_URL}/E.mp3` },
+  F: { label: 'Om Gam 15',                          url: `${STORAGE_URL}/F.mp3` },
+  G: { label: 'Guided Morning 10',                  url: `${STORAGE_URL}/G.mp3` },
   H: null, I: null, J: null
 };
 
@@ -196,127 +233,217 @@ async function sbFetch(path, opts={}) {
     ...opts });
 }
 
-let currentTrack = 'A';
-let activeMedDateStr = null;
-let medTimer = null;
+// ── STATE ──
+let currentTab = 'm';
+let track1 = 'A', track2 = 'B';
+let activeDateStr = null;
+let medTimer1 = null, medTimer2 = null;
 let wakeLock = null;
+let track1Done = false;
 let done = {};
-let confirmDateStr = null;
-let confirmIsDone = false;
+let confirmDateStr = null, confirmIsDone = false;
+let settingsSaveTimer = null;
 
 const today = new Date(); today.setHours(0,0,0,0);
 function dateStr(d) { return d.toISOString().split('T')[0]; }
-function fmt(s) { s = Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function fmt(s) { s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 
-// ── TRACK TOGGLE ──
-function buildTrackToggle() {
-  const tog = document.getElementById('track-toggle');
+// ── TABS ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-m').classList.toggle('active', tab==='m');
+  document.getElementById('tab-2m').classList.toggle('active', tab==='2m');
+  document.getElementById('track-wrap-2').style.display = tab==='2m' ? 'block' : 'none';
+  schedSaveSettings();
+}
+
+// ── TRACK TOGGLES ──
+function buildToggle(n, current, activeClass) {
+  const tog = document.getElementById(`track-toggle-${n}`);
   tog.innerHTML = '';
   LETTERS.forEach(k => {
     const btn = document.createElement('button');
-    btn.className = 'track-btn' + (k === currentTrack ? ' active' : '') + (!TRACKS[k] ? ' empty' : '');
+    const isActive = k === current;
+    btn.className = 'track-btn' + (isActive ? ' '+activeClass : '') + (!TRACKS[k] ? ' empty' : '');
     btn.textContent = k;
-    if (TRACKS[k]) btn.onclick = () => selectTrack(k);
+    if (TRACKS[k]) btn.onclick = () => selectTrack(n, k);
     tog.appendChild(btn);
   });
-  document.getElementById('track-label-text').textContent = TRACKS[currentTrack] ? TRACKS[currentTrack].label : '';
+  document.getElementById(`track-label-${n}`).textContent = TRACKS[current] ? TRACKS[current].label : '';
 }
-function selectTrack(k) {
+function buildToggles() {
+  buildToggle(1, track1, 'active');
+  buildToggle(2, track2, 'active2');
+}
+function selectTrack(n, k) {
   if (!TRACKS[k]) return;
-  currentTrack = k;
-  document.querySelectorAll('#track-toggle .track-btn').forEach((b, i) => b.classList.toggle('active', LETTERS[i] === k));
-  document.getElementById('track-label-text').textContent = TRACKS[k].label;
+  if (n===1) track1=k; else track2=k;
+  buildToggles();
+  schedSaveSettings();
 }
 
-// ── AUDIO ──
+// ── SETTINGS ──
+async function loadSettings() {
+  try {
+    const res = await sbFetch('breathing_settings?select=key,value');
+    const rows = await res.json();
+    if (Array.isArray(rows)) rows.forEach(r => {
+      if (r.key==='tab2')   currentTab = r.value;
+      if (r.key==='track1') track1 = r.value;
+      if (r.key==='track2') track2 = r.value;
+    });
+  } catch(e) {
+    try {
+      const s = JSON.parse(localStorage.getItem('med2_settings')||'{}');
+      if (s.tab)    currentTab = s.tab;
+      if (s.track1) track1 = s.track1;
+      if (s.track2) track2 = s.track2;
+    } catch(e2) {}
+  }
+  if (currentTab==='2m') {
+    document.getElementById('tab-m').classList.remove('active');
+    document.getElementById('tab-2m').classList.add('active');
+    document.getElementById('track-wrap-2').style.display = 'block';
+  }
+  buildToggles();
+}
+function schedSaveSettings() {
+  clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(saveSettings, 1500);
+}
+async function saveSettings() {
+  const payload = [
+    { key: 'tab2',   value: currentTab },
+    { key: 'track1', value: track1 },
+    { key: 'track2', value: track2 },
+  ];
+  localStorage.setItem('med2_settings', JSON.stringify({ tab: currentTab, track1, track2 }));
+  try {
+    for (const row of payload) {
+      await sbFetch(`breathing_settings?key=eq.${row.key}`, { method: 'DELETE' });
+      await sbFetch('breathing_settings', { method: 'POST', body: JSON.stringify(row) });
+    }
+  } catch(e) {}
+}
+
+// ── AUDIO FADE IN ──
 function fadeInAudio(a) {
   a.volume = 0;
-  const fadeStart = Date.now();
+  const start = Date.now();
   const fi = setInterval(() => {
-    const t = (Date.now() - fadeStart) / 20000;
-    if (t >= 1) { a.volume = 0.7; clearInterval(fi); return; }
-    a.volume = t * 0.7;
+    const t = (Date.now()-start)/20000;
+    if (t>=1) { a.volume=0.7; clearInterval(fi); return; }
+    a.volume = t*0.7;
   }, 100);
 }
 
-// ── MEDITATE ──
-function openMeditateDay(ds, d) {
-  activeMedDateStr = ds;
-  const isDone = !!(done[ds] && done[ds].includes('meditation'));
-  const track = TRACKS[currentTrack];
-  if (!track) return;
-  const a = document.getElementById('med-audio');
-  a.src = track.url; a.currentTime = 0;
-  fadeInAudio(a);
-  a.play().catch(()=>{});
-  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
-  document.getElementById('med-player').classList.add('visible');
-  document.getElementById('med-player-label').textContent = track.label;
-  document.getElementById('med-prog').style.width = '0%';
-  const doneBtn = document.getElementById('med-done-btn');
+// ── SESSION ──
+function openDay(ds, d) {
+  activeDateStr = ds;
+  track1Done = false;
+  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l=>{wakeLock=l;}).catch(()=>{});
+
+  const isDone = !!(done[ds] && (done[ds].includes('meditation') || done[ds].includes('2m')));
+  const doneBtn = document.getElementById('done-btn');
   doneBtn.textContent = isDone ? '↩ Undo' : '✓ Done';
   doneBtn.classList.toggle('undo', isDone);
-  doneBtn.classList.add('visible');
-  document.getElementById('med-stop-btn').classList.add('visible');
-  clearInterval(medTimer);
-  medTimer = setInterval(updateMedProgress, 1000);
-  a.onended = async () => {
-    clearInterval(medTimer);
-    document.getElementById('med-prog').style.width = '100%';
-    await finishMeditate(true);
+  document.getElementById('btn-row').classList.add('visible');
+
+  if (currentTab==='m') {
+    startTrack1(ds);
+  } else {
+    startTrack1(ds);
+  }
+}
+
+function startTrack1(ds) {
+  const a1 = document.getElementById('audio-1');
+  const t = TRACKS[track1]; if (!t) return;
+  a1.src = t.url; a1.currentTime = 0;
+  fadeInAudio(a1);
+  a1.play().catch(()=>{});
+
+  const p1 = document.getElementById('player-1');
+  p1.classList.add('visible'); p1.classList.remove('done-track');
+  document.getElementById('player-1-label').textContent = t.label;
+  document.getElementById('prog-1').style.width = '0%';
+  clearInterval(medTimer1);
+  medTimer1 = setInterval(() => updateProgress(1), 1000);
+
+  a1.onended = async () => {
+    clearInterval(medTimer1);
+    document.getElementById('prog-1').style.width = '100%';
+    document.getElementById('player-1').classList.add('done-track');
+    if (currentTab==='2m') {
+      track1Done = true;
+      startTrack2(ds);
+    } else {
+      await finishSession(ds, false);
+    }
   };
 }
 
-function updateMedProgress() {
-  const a = document.getElementById('med-audio');
+function startTrack2(ds) {
+  const a2 = document.getElementById('audio-2');
+  const t = TRACKS[track2]; if (!t) return;
+  a2.src = t.url; a2.currentTime = 0;
+  fadeInAudio(a2);
+  a2.play().catch(()=>{});
+
+  const p2 = document.getElementById('player-2');
+  p2.classList.add('visible'); p2.classList.remove('done-track');
+  document.getElementById('player-2-label').textContent = t.label;
+  document.getElementById('prog-2').style.width = '0%';
+  clearInterval(medTimer2);
+  medTimer2 = setInterval(() => updateProgress(2), 1000);
+
+  a2.onended = async () => {
+    clearInterval(medTimer2);
+    document.getElementById('prog-2').style.width = '100%';
+    await finishSession(ds, false);
+  };
+}
+
+function updateProgress(n) {
+  const a = document.getElementById(`audio-${n}`);
   const dur = a.duration||0, cur = a.currentTime||0;
-  document.getElementById('med-prog').style.width = (dur>0?(cur/dur)*100:0)+'%';
-  document.getElementById('med-cur').textContent = fmt(cur);
-  document.getElementById('med-tot').textContent = fmt(dur);
+  document.getElementById(`prog-${n}`).style.width = (dur>0?(cur/dur)*100:0)+'%';
+  document.getElementById(`cur-${n}`).textContent = fmt(cur);
+  document.getElementById(`tot-${n}`).textContent = fmt(dur);
 }
 
-async function finishMeditate(autoComplete) {
-  clearInterval(medTimer);
-  if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  if (autoComplete && activeMedDateStr) {
-    if (!(done[activeMedDateStr] && done[activeMedDateStr].includes('meditation')))
-      await addDone(activeMedDateStr, 'meditation');
+async function finishSession(ds, manual) {
+  clearInterval(medTimer1); clearInterval(medTimer2);
+  if (wakeLock) { wakeLock.release(); wakeLock=null; }
+  if (!manual && ds) {
+    const source = currentTab==='2m' ? '2m' : 'meditation';
+    if (!(done[ds] && done[ds].includes(source))) await addDone(ds, source);
   }
-  document.getElementById('med-stop-btn').classList.remove('visible');
-  updateMedDoneBtn();
+  const doneBtn = document.getElementById('done-btn');
+  const isDone = !!(done[ds] && (done[ds].includes('meditation')||done[ds].includes('2m')));
+  doneBtn.textContent = isDone ? '↩ Undo' : '✓ Done';
+  doneBtn.classList.toggle('undo', isDone);
 }
 
-function updateMedDoneBtn() {
-  if (!activeMedDateStr) return;
-  const isDone = !!(done[activeMedDateStr] && done[activeMedDateStr].includes('meditation'));
-  const btn = document.getElementById('med-done-btn');
-  btn.textContent = isDone ? '↩ Undo' : '✓ Done';
-  btn.classList.toggle('undo', isDone);
+function stopSession() {
+  ['audio-1','audio-2'].forEach(id => {
+    const a = document.getElementById(id); a.pause(); a.currentTime=0; a.onended=null;
+  });
+  clearInterval(medTimer1); clearInterval(medTimer2);
+  if (wakeLock) { wakeLock.release(); wakeLock=null; }
+  document.getElementById('player-1').classList.remove('visible','done-track');
+  document.getElementById('player-2').classList.remove('visible','done-track');
+  document.getElementById('btn-row').classList.remove('visible');
+  activeDateStr = null; track1Done = false;
 }
 
-function stopMeditate() {
-  const a = document.getElementById('med-audio');
-  a.pause(); a.currentTime = 0; a.onended = null;
-  clearInterval(medTimer);
-  if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  document.getElementById('med-player').classList.remove('visible');
-  document.getElementById('med-stop-btn').classList.remove('visible');
-  document.getElementById('med-done-btn').classList.remove('visible');
-  activeMedDateStr = null;
-}
-
-async function handleMedDoneBtn() {
-  if (!activeMedDateStr) return;
-  const isDone = !!(done[activeMedDateStr] && done[activeMedDateStr].includes('meditation'));
-  if (isDone) await removeDone(activeMedDateStr, 'meditation');
-  else await addDone(activeMedDateStr, 'meditation');
-  const a = document.getElementById('med-audio');
-  a.pause(); a.currentTime = 0; a.onended = null;
-  clearInterval(medTimer);
-  document.getElementById('med-player').classList.remove('visible');
-  document.getElementById('med-stop-btn').classList.remove('visible');
-  document.getElementById('med-done-btn').classList.remove('visible');
-  activeMedDateStr = null;
+async function handleDoneBtn() {
+  if (!activeDateStr) return;
+  const source = currentTab==='2m' ? '2m' : 'meditation';
+  const isDone = !!(done[activeDateStr] && done[activeDateStr].includes(source));
+  if (isDone) await removeDone(activeDateStr, source);
+  else await addDone(activeDateStr, source);
+  stopSession();
 }
 
 // ── COMPLETIONS ──
@@ -327,29 +454,29 @@ async function loadDone() {
     done = {};
     data.forEach(r => {
       if (!done[r.date]) done[r.date] = [];
-      done[r.date].push(r.source || 'meditation');
+      done[r.date].push(r.source||'meditation');
     });
   } catch(e) {
-    const arr = JSON.parse(localStorage.getItem('done') || '[]');
-    done = {}; arr.forEach(d => { done[d] = ['meditation']; });
+    const arr = JSON.parse(localStorage.getItem('done')||'[]');
+    done = {}; arr.forEach(d=>{done[d]=['meditation'];});
   }
   buildGrid();
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
 }
 async function addDone(ds, source) {
-  if (!done[ds]) done[ds] = [];
+  if (!done[ds]) done[ds]=[];
   if (!done[ds].includes(source)) done[ds].push(source);
   localStorage.setItem('done', JSON.stringify(Object.keys(done)));
   buildGrid();
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
-  try { await sbFetch('completions', { method: 'POST', body: JSON.stringify({ date: ds, source }) }); } catch(e) {}
+  try { await sbFetch('completions',{method:'POST',body:JSON.stringify({date:ds,source})}); } catch(e){}
 }
 async function removeDone(ds, source) {
-  if (done[ds]) { done[ds] = done[ds].filter(s => s !== source); if (done[ds].length === 0) delete done[ds]; }
+  if (done[ds]) { done[ds]=done[ds].filter(s=>s!==source); if (!done[ds].length) delete done[ds]; }
   localStorage.setItem('done', JSON.stringify(Object.keys(done)));
   buildGrid();
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
-  try { await sbFetch(`completions?date=eq.${ds}&source=eq.${source}`, { method: 'DELETE' }); } catch(e) {}
+  try { await sbFetch(`completions?date=eq.${ds}&source=eq.${source}`,{method:'DELETE'}); } catch(e){}
 }
 
 // ── GRID ──
@@ -357,67 +484,63 @@ function buildGrid() {
   const grid = document.getElementById('grid');
   const todayStr = dateStr(today);
   grid.innerHTML = '';
-  for (let i = 0; i < 100; i++) {
+  for (let i=0; i<100; i++) {
     const d = new Date(today); d.setDate(today.getDate()-i);
     const ds = dateStr(d);
-    const sources = done[ds] || [];
-    const hasMed = sources.includes('meditation'), hasBre = sources.includes('breathing');
-    const doneClass = hasMed && hasBre ? ' done-both' : hasMed ? ' done-meditation' : hasBre ? ' done-breathing' : '';
+    const sources = done[ds]||[];
+    const has2m  = sources.includes('2m');
+    const hasMed = sources.includes('meditation');
+    const doneClass = has2m ? ' done-2m' : hasMed ? ' done-meditation' : '';
     const el = document.createElement('div');
-    el.className = 'bubble' + doneClass + (ds === todayStr ? ' today' : '');
+    el.className = 'bubble'+doneClass+(ds===todayStr?' today':'');
     const num = document.createElement('div');
-    num.className = 'day-num'; num.textContent = d.getDate();
+    num.className='day-num'; num.textContent=d.getDate();
     el.appendChild(num);
-    if (i === 0 || d.getDate() === 1) {
-      const mo = document.createElement('div');
-      mo.className = 'month-tag';
-      mo.textContent = d.toLocaleString('default', { month: 'short' });
+    if (i===0||d.getDate()===1) {
+      const mo=document.createElement('div');
+      mo.className='month-tag';
+      mo.textContent=d.toLocaleString('default',{month:'short'});
       el.appendChild(mo);
     }
-    el.addEventListener('click', () => openMeditateDay(ds, d));
+    el.addEventListener('click', ()=>openDay(ds,d));
     grid.appendChild(el);
   }
 }
 
 // ── ADMIN ──
 function openAdmin() { buildTrackRows(); document.getElementById('admin-panel').classList.add('visible'); }
-function closeAdmin() { document.getElementById('admin-panel').classList.remove('visible'); buildTrackToggle(); }
-function adminBgClick(e) { if (e.target === document.getElementById('admin-panel')) closeAdmin(); }
+function closeAdmin() { document.getElementById('admin-panel').classList.remove('visible'); buildToggles(); }
+function adminBgClick(e) { if (e.target===document.getElementById('admin-panel')) closeAdmin(); }
 function buildTrackRows() {
-  const container = document.getElementById('track-rows');
-  container.innerHTML = '';
-  LETTERS.forEach(k => {
-    const row = document.createElement('div'); row.className = 'track-row';
-    const letter = document.createElement('div');
-    letter.className = 'track-letter' + (TRACKS[k] ? '' : ' empty-slot');
-    letter.textContent = k;
-    const nameInput = document.createElement('input');
-    nameInput.className = 'track-name-input'; nameInput.type = 'text';
-    nameInput.placeholder = 'Track name...';
-    nameInput.value = TRACKS[k] ? TRACKS[k].label : '';
-    nameInput.addEventListener('change', () => { if (TRACKS[k]) TRACKS[k].label = nameInput.value; });
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file'; fileInput.accept = 'audio/*';
-    const uploadBtn = document.createElement('button');
-    uploadBtn.className = 'upload-btn';
-    uploadBtn.textContent = TRACKS[k] ? 'Replace' : 'Upload';
-    uploadBtn.onclick = () => fileInput.click();
-    fileInput.addEventListener('change', async () => {
-      const file = fileInput.files[0]; if (!file) return;
-      uploadBtn.textContent = '...';
+  const container=document.getElementById('track-rows'); container.innerHTML='';
+  LETTERS.forEach(k=>{
+    const row=document.createElement('div'); row.className='track-row';
+    const letter=document.createElement('div');
+    letter.className='track-letter'+(TRACKS[k]?'':' empty-slot'); letter.textContent=k;
+    const nameInput=document.createElement('input');
+    nameInput.className='track-name-input'; nameInput.type='text';
+    nameInput.placeholder='Track name...';
+    nameInput.value=TRACKS[k]?TRACKS[k].label:'';
+    nameInput.addEventListener('change',()=>{if(TRACKS[k])TRACKS[k].label=nameInput.value;});
+    const fileInput=document.createElement('input');
+    fileInput.type='file'; fileInput.accept='audio/*';
+    const uploadBtn=document.createElement('button');
+    uploadBtn.className='upload-btn'; uploadBtn.textContent=TRACKS[k]?'Replace':'Upload';
+    uploadBtn.onclick=()=>fileInput.click();
+    fileInput.addEventListener('change',async()=>{
+      const file=fileInput.files[0]; if(!file) return;
+      uploadBtn.textContent='...';
       try {
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/audio/${k}.mp3`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY,
-            'Content-Type': 'audio/mpeg', 'x-upsert': 'true' },
-          body: file
-        });
-        if (res.ok || res.status === 200 || res.status === 201) {
-          TRACKS[k] = { label: nameInput.value || file.name.replace(/\.[^.]+$/, ''), url: `${STORAGE_URL}/${k}.mp3?t=${Date.now()}` };
-          if (!nameInput.value) nameInput.value = TRACKS[k].label;
-          letter.className = 'track-letter'; uploadBtn.textContent = 'Replace';
-        } else { uploadBtn.textContent = 'Error'; }
-      } catch(e) { uploadBtn.textContent = 'Error'; }
+        const res=await fetch(`${SUPABASE_URL}/storage/v1/object/audio/${k}.mp3`,{
+          method:'POST',
+          headers:{'Authorization':`Bearer ${SUPABASE_KEY}`,'apikey':SUPABASE_KEY,'Content-Type':'audio/mpeg','x-upsert':'true'},
+          body:file});
+        if(res.ok||res.status===200||res.status===201){
+          TRACKS[k]={label:nameInput.value||file.name.replace(/\.[^.]+$/,''),url:`${STORAGE_URL}/${k}.mp3?t=${Date.now()}`};
+          if(!nameInput.value) nameInput.value=TRACKS[k].label;
+          letter.className='track-letter'; uploadBtn.textContent='Replace';
+        } else { uploadBtn.textContent='Error'; }
+      } catch(e){ uploadBtn.textContent='Error'; }
     });
     row.appendChild(letter); row.appendChild(nameInput); row.appendChild(fileInput); row.appendChild(uploadBtn);
     container.appendChild(row);
@@ -425,28 +548,31 @@ function buildTrackRows() {
 }
 
 // ── CONFIRM ──
-function openConfirm(ds, d) {
-  confirmDateStr = ds;
-  const sources = done[ds] || [];
-  confirmIsDone = sources.length > 0;
-  document.getElementById('confirm-title').textContent = confirmIsDone ? 'Undo completion?' : 'Mark as done?';
-  document.getElementById('confirm-sub').textContent = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-  document.getElementById('confirm-action-btn').textContent = confirmIsDone ? 'Undo' : 'Mark done';
+function openConfirm(ds,d) {
+  confirmDateStr=ds;
+  const sources=done[ds]||[]; confirmIsDone=sources.length>0;
+  document.getElementById('confirm-title').textContent=confirmIsDone?'Undo completion?':'Mark as done?';
+  document.getElementById('confirm-sub').textContent=d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('confirm-action-btn').textContent=confirmIsDone?'Undo':'Mark done';
   document.getElementById('confirm').classList.add('visible');
 }
-function closeConfirm() { document.getElementById('confirm').classList.remove('visible'); confirmDateStr = null; }
-async function confirmAction() {
-  if (!confirmDateStr) return;
-  if (confirmIsDone) {
-    const sources = [...(done[confirmDateStr] || [])];
-    for (const s of sources) await removeDone(confirmDateStr, s);
-  } else { await addDone(confirmDateStr, 'meditation'); }
+function closeConfirm(){document.getElementById('confirm').classList.remove('visible');confirmDateStr=null;}
+async function confirmAction(){
+  if(!confirmDateStr) return;
+  if(confirmIsDone){
+    const sources=[...(done[confirmDateStr]||[])];
+    for(const s of sources) await removeDone(confirmDateStr,s);
+  } else { await addDone(confirmDateStr,'meditation'); }
   closeConfirm();
 }
-function confirmBgClick(e) { if (e.target === document.getElementById('confirm')) closeConfirm(); }
+function confirmBgClick(e){if(e.target===document.getElementById('confirm'))closeConfirm();}
 
-// ── INIT ──
-buildTrackToggle();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&wakeLock&&'wakeLock' in navigator)
+    navigator.wakeLock.request('screen').then(l=>{wakeLock=l;}).catch(()=>{});
+});
+
+loadSettings();
 loadDone();
 </script>
 </body>
