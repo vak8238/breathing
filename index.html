@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Breathing">
-<title>Breathing</title>
+<meta name="apple-mobile-web-app-title" content="Meditate">
+<title>Meditate</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -22,45 +22,12 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
     -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
   body { display: flex; flex-direction: column;
-    padding-top: calc(var(--safe-top) + 8px);
-    padding-bottom: calc(var(--safe-bottom) + 8px); }
-
-  /* TABS */
-  .tabs { display: flex; gap: 5px; padding: 0 16px 10px; flex-shrink: 0; }
-  .tab { flex: 1; padding: 8px 0; font-size: 12px; font-weight: 500;
-    border-radius: 10px; border: 0.5px solid var(--border);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    transition: background 0.15s, color 0.15s; }
-  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-
-  /* SCROLL */
+    padding-top: calc(var(--safe-top) + 10px);
+    padding-bottom: calc(var(--safe-bottom) + 10px); }
   .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px 16px; }
 
-  /* CIRCLE */
-  .circle-wrap { display: flex; flex-direction: column; align-items: center; padding: 8px 0 10px; }
-  .circle-outer { width: 130px; height: 130px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--surface); border: 3px solid var(--border);
-    position: relative; transition: background 0.4s ease, border-color 0.4s ease; }
-  .circle-outer.inhale  { background: #4caf50; border-color: #4caf50; }
-  .circle-outer.hold    { background: #fbc02d; border-color: #fbc02d; }
-  .circle-outer.exhale  { background: #2196f3; border-color: #2196f3; }
-  @media (prefers-color-scheme: dark) {
-    .circle-outer.inhale  { background: #4caf50; border-color: #4caf50; }
-    .circle-outer.hold    { background: #fbc02d; border-color: #fbc02d; }
-    .circle-outer.exhale  { background: #2196f3; border-color: #2196f3; }
-  }
-  .circle-outer.inhale .phase-label, .circle-outer.inhale .phase-count, .circle-outer.inhale .phase-sub,
-  .circle-outer.hold .phase-label, .circle-outer.hold .phase-count, .circle-outer.hold .phase-sub,
-  .circle-outer.exhale .phase-label, .circle-outer.exhale .phase-count, .circle-outer.exhale .phase-sub
-  { color: #fff; }
-  .phase-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: 0.3px; }
-  .phase-count { font-size: 36px; font-weight: 200; color: var(--text); line-height: 1; }
-  .phase-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
-
-  /* TRACK TOGGLE (shared) */
-  .track-wrap { margin-bottom: 8px; }
+  /* TRACK TOGGLE */
+  .track-wrap { margin-bottom: 10px; }
   .track-toggle { display: grid; grid-template-columns: repeat(10, 1fr);
     background: var(--surface); border: 0.5px solid var(--border);
     border-radius: 10px; gap: 2px; padding: 2px; }
@@ -73,33 +40,7 @@
   .track-label-text { font-size: 10px; color: var(--text-muted); text-align: center;
     margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* CONTROLS */
-  .interval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .interval-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 8px 10px; }
-  .interval-box-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px;
-    text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
-  .interval-row { display: flex; align-items: stretch; }
-  .interval-btn { flex: 1; min-height: 44px; border: none; background: transparent;
-    font-size: 20px; color: var(--text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    -webkit-tap-highlight-color: transparent; border-radius: 8px; touch-action: manipulation; }
-  .interval-btn:active { background: var(--border); }
-  .interval-val { font-size: 20px; font-weight: 400; color: var(--text); flex: 1;
-    text-align: center; display: flex; align-items: center; justify-content: center; }
-  .duration-row { background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
-  .duration-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .duration-label { font-size: 12px; color: var(--text-muted); }
-  .duration-val { font-size: 13px; font-weight: 500; color: var(--text); }
-  input[type=range] { width: 100%; accent-color: var(--blue); height: 4px; }
-  .start-btn { width: 100%; padding: 13px; border-radius: 14px; border: none;
-    background: var(--blue); color: #fff; font-size: 15px; font-weight: 600;
-    cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    transition: opacity 0.15s; margin-bottom: 10px; }
-  .start-btn:active { opacity: 0.85; }
-  .start-btn.running { background: #e05; }
-
-  /* MED PLAYER (B&M transition + Meditate tab) */
+  /* MED PLAYER */
   .med-player { background: var(--surface); border: 0.5px solid var(--border);
     border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: none; }
   .med-player.visible { display: block; }
@@ -109,16 +50,15 @@
   .med-progress-fill { height: 100%; background: var(--green); border-radius: 2px; width: 0%; transition: width 1s linear; }
   .med-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; justify-content: space-between; }
 
-  /* MEDITATE TAB PLAYER */
   .med-stop-btn { width: 100%; padding: 13px; border-radius: 14px; border: none;
     background: #e05; color: #fff; font-size: 15px; font-weight: 600;
     cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     margin-bottom: 10px; display: none; }
   .med-stop-btn.visible { display: block; }
-  .med-done-btn {
-    width: 100%; padding: 13px; border-radius: 14px; border: 1.5px solid var(--green);
-    background: transparent; color: var(--green); font-size: 15px; font-weight: 600;
-    cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  .med-done-btn { width: 100%; padding: 13px; border-radius: 14px;
+    border: 1.5px solid var(--green); background: transparent; color: var(--green);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     margin-bottom: 10px; display: none; }
   .med-done-btn.visible { display: block; }
   .med-done-btn.undo { border-color: var(--text-muted); color: var(--text-muted); }
@@ -169,7 +109,6 @@
   .upload-btn { font-size: 12px; padding: 5px 10px; border-radius: 6px;
     border: 0.5px solid var(--border); background: transparent; color: var(--text-muted);
     cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-  .upload-btn.uploading { opacity: 0.5; }
   .admin-close { width: 100%; margin-top: 16px; padding: 12px; border-radius: 10px;
     border: 0.5px solid var(--border); background: transparent; color: var(--text);
     font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -191,88 +130,18 @@
 </head>
 <body>
 
-<div class="tabs">
-  <button class="tab active" id="tab-breathe" onclick="switchTab('breathe')">Breathe</button>
-  <button class="tab" id="tab-bm" onclick="switchTab('bm')">B&amp;M</button>
-  <button class="tab" id="tab-meditate" onclick="switchTab('meditate')">Meditate</button>
-</div>
-
 <div class="scroll">
-
-  <!-- CIRCLE: shown on breathe + bm only -->
-  <div class="circle-wrap" id="circle-wrap">
-    <div class="circle-outer" id="circle">
-
-      <div class="circle-inner">
-        <div class="phase-label" id="phase-label">Ready</div>
-        <div class="phase-count" id="phase-count">—</div>
-        <div class="phase-sub" id="phase-sub"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRACK SELECTOR: shown on bm + meditate -->
-  <div class="track-wrap" id="track-wrap" style="display:none">
+  <div class="track-wrap">
     <div class="track-toggle" id="track-toggle"></div>
     <div class="track-label-text" id="track-label-text"></div>
   </div>
 
-  <!-- INTERVAL CONTROLS: breathe + bm -->
-  <div id="interval-section">
-    <div class="interval-grid">
-      <div class="interval-box">
-        <div class="interval-box-label">Inhale</div>
-        <div class="interval-row">
-          <button class="interval-btn" onclick="adj('inhale',-1)">−</button>
-          <div class="interval-val" id="val-inhale">4</div>
-          <button class="interval-btn" onclick="adj('inhale',1)">+</button>
-        </div>
-      </div>
-      <div class="interval-box">
-        <div class="interval-box-label">Hold in</div>
-        <div class="interval-row">
-          <button class="interval-btn" onclick="adj('holdin',-1)">−</button>
-          <div class="interval-val" id="val-holdin">4</div>
-          <button class="interval-btn" onclick="adj('holdin',1)">+</button>
-        </div>
-      </div>
-      <div class="interval-box">
-        <div class="interval-box-label">Exhale</div>
-        <div class="interval-row">
-          <button class="interval-btn" onclick="adj('exhale',-1)">−</button>
-          <div class="interval-val" id="val-exhale">4</div>
-          <button class="interval-btn" onclick="adj('exhale',1)">+</button>
-        </div>
-      </div>
-      <div class="interval-box">
-        <div class="interval-box-label">Hold out</div>
-        <div class="interval-row">
-          <button class="interval-btn" onclick="adj('holdout',-1)">−</button>
-          <div class="interval-val" id="val-holdout">4</div>
-          <button class="interval-btn" onclick="adj('holdout',1)">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="duration-row">
-      <div class="duration-top">
-        <span class="duration-label" id="dur-label-text">Total duration</span>
-        <span class="duration-val" id="dur-label">5 min</span>
-      </div>
-      <input type="range" min="1" max="30" value="5" id="dur-slider" oninput="updateDur()">
-    </div>
-  </div>
-
-  <!-- START BTN: breathe + bm -->
-  <button class="start-btn" id="start-btn" onclick="toggleSession()">Start</button>
-
-  <!-- MED PLAYER: B&M transition + Meditate tab -->
   <div class="med-player" id="med-player">
-    <div class="med-player-label" id="med-player-label">Meditation starting...</div>
+    <div class="med-player-label" id="med-player-label">Select a day to begin</div>
     <div class="med-progress-bg"><div class="med-progress-fill" id="med-prog"></div></div>
     <div class="med-time"><span id="med-cur">0:00</span><span id="med-tot">0:00</span></div>
   </div>
 
-  <!-- MEDITATE TAB CONTROLS -->
   <button class="med-stop-btn" id="med-stop-btn" onclick="stopMeditate()">Stop</button>
   <button class="med-done-btn" id="med-done-btn" onclick="handleMedDoneBtn()">✓ Done</button>
 
@@ -315,7 +184,9 @@ const TRACKS = {
   C: { label: "Don't Identify — Mooji",        url: `${STORAGE_URL}/C.mp3` },
   D: { label: 'The Quiet Immensity Within — Adya', url: `${STORAGE_URL}/D.mp3` },
   E: { label: 'Deep Relaxation Visualisation', url: `${STORAGE_URL}/E.mp3` },
-  F: { label: 'Om Gam 15', url: `${STORAGE_URL}/F.mp3` }, G: { label: 'Guided Morning 10', url: `${STORAGE_URL}/G.mp3` }, H: null, I: null, J: null
+  F: { label: 'Om Gam 15',                     url: `${STORAGE_URL}/F.mp3` },
+  G: { label: 'Guided Morning 10',             url: `${STORAGE_URL}/G.mp3` },
+  H: null, I: null, J: null
 };
 
 async function sbFetch(path, opts={}) {
@@ -325,65 +196,17 @@ async function sbFetch(path, opts={}) {
     ...opts });
 }
 
-// ── STATE ──
-let currentTab = 'breathe';
 let currentTrack = 'A';
-let intervals = { inhale: 4, holdin: 4, exhale: 4, holdout: 4 };
-let durMin = 5;
-let running = false;
-let wakeLock = null;
-let phaseTimer = null;
-let medTimer = null;
-let sessionEndTime = null;
-let currentPhaseIdx = 0;
-let phaseSecondsLeft = 0;
 let activeMedDateStr = null;
+let medTimer = null;
+let wakeLock = null;
 let done = {};
 let confirmDateStr = null;
 let confirmIsDone = false;
-let settingsSaveTimer = null;
-
-const phases = [
-  { key: 'inhale',  label: 'Inhale',  circle: 'inhale' },
-  { key: 'holdin',  label: 'Hold',    circle: 'hold'   },
-  { key: 'exhale',  label: 'Exhale',  circle: 'exhale' },
-  { key: 'holdout', label: 'Hold',    circle: 'hold'   },
-];
 
 const today = new Date(); today.setHours(0,0,0,0);
 function dateStr(d) { return d.toISOString().split('T')[0]; }
 function fmt(s) { s = Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
-
-// ── TABS ──
-function switchTab(tab) {
-  currentTab = tab;
-  ['breathe','bm','meditate'].forEach(t =>
-    document.getElementById('tab-'+t).classList.toggle('active', t === tab));
-
-  const isMed = tab === 'meditate';
-  const isBM  = tab === 'bm';
-  const isBre = tab === 'breathe';
-
-  document.getElementById('circle-wrap').style.display    = isMed ? 'none' : 'flex';
-  document.getElementById('track-wrap').style.display     = (isBM || isMed) ? 'block' : 'none';
-  document.getElementById('interval-section').style.display = isMed ? 'none' : 'block';
-  document.getElementById('start-btn').style.display      = isMed ? 'none' : 'block';
-  document.getElementById('dur-label-text').textContent   = isBM ? 'Breathing duration' : 'Total duration';
-
-  // Hide meditate-specific buttons when not on meditate tab
-  if (!isMed) {
-    document.getElementById('med-stop-btn').classList.remove('visible');
-    document.getElementById('med-done-btn').classList.remove('visible');
-    // stop any playing meditation if switching away
-    if (!running) {
-      const a = document.getElementById('med-audio');
-      a.pause(); a.currentTime = 0; a.onended = null;
-      document.getElementById('med-player').classList.remove('visible');
-    }
-  }
-
-  schedSaveSettings();
-}
 
 // ── TRACK TOGGLE ──
 function buildTrackToggle() {
@@ -403,297 +226,9 @@ function selectTrack(k) {
   currentTrack = k;
   document.querySelectorAll('#track-toggle .track-btn').forEach((b, i) => b.classList.toggle('active', LETTERS[i] === k));
   document.getElementById('track-label-text').textContent = TRACKS[k].label;
-  schedSaveSettings();
 }
 
-// ── TONES ──
-let audioCtx = null;
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-
-// Bell audio pool — pre-create elements so iOS allows repeated playback
-const bellPool = { inhale: [], exhale: [] };
-const BELL_INHALE_URL = `${STORAGE_URL}/bell_inhale.mp3`;
-const BELL_EXHALE_URL = `${STORAGE_URL}/bell_exhale.mp3`;
-const POOL_SIZE = 3;
-
-function preloadBells() {
-  ['inhale', 'exhale'].forEach(key => {
-    const url = key === 'inhale' ? BELL_INHALE_URL : BELL_EXHALE_URL;
-    for (let i = 0; i < POOL_SIZE; i++) {
-      const el = document.createElement('audio');
-      el.src = url;
-      el.preload = 'auto';
-      document.body.appendChild(el);
-      bellPool[key].push({ el, busy: false });
-    }
-  });
-}
-
-function unlockBells() {
-  // Must be called inside a user gesture (Start tap) to unlock all pool elements
-  [...bellPool.inhale, ...bellPool.exhale].forEach(item => {
-    item.el.play().then(() => { item.el.pause(); item.el.currentTime = 0; }).catch(()=>{});
-  });
-}
-
-function playBell(key, vol=0.9, phaseDur=4.0) {
-  const pool = bellPool[key];
-  let item = pool.find(p => !p.busy);
-  if (!item) { item = pool[0]; item.el.pause(); item.el.currentTime = 0; }
-  const el = item.el;
-  item.busy = true;
-  el.currentTime = 0;
-  el.volume = vol;
-  el.play().catch(()=>{});
-
-  // After phase ends, fade out over 1 second
-  const fadeMs = 1000;
-  const steps = 30;
-  const t = setTimeout(() => {
-    let step = 0;
-    const iv = setInterval(() => {
-      step++;
-      el.volume = Math.max(0, vol * (1 - step / steps));
-      if (step >= steps) {
-        clearInterval(iv);
-        el.pause();
-        el.currentTime = 0;
-        el.volume = vol;
-        item.busy = false;
-      }
-    }, fadeMs / steps);
-  }, phaseDur * 1000);
-  // Store timer on item so we can cancel if needed
-  item.fadeTimer = t;
-}
-
-function cue(phase) {
-  if (navigator.vibrate) {
-    if (phase === 'inhale') navigator.vibrate(60);
-    else if (phase === 'exhale') navigator.vibrate(100);
-  }
-  const dur = intervals[phase] || 4;
-  if (phase === 'inhale') playBell('inhale', 0.9, dur);
-  else if (phase === 'exhale') playBell('exhale', 0.85, dur);
-  // holds are silent
-}
-
-// ── ADMIN ──
-function openAdmin() { buildTrackRows(); document.getElementById('admin-panel').classList.add('visible'); }
-function closeAdmin() { document.getElementById('admin-panel').classList.remove('visible'); buildTrackToggle(); }
-function adminBgClick(e) { if (e.target === document.getElementById('admin-panel')) closeAdmin(); }
-function buildTrackRows() {
-  const container = document.getElementById('track-rows');
-  container.innerHTML = '';
-  LETTERS.forEach(k => {
-    const row = document.createElement('div');
-    row.className = 'track-row';
-    const letter = document.createElement('div');
-    letter.className = 'track-letter' + (TRACKS[k] ? '' : ' empty-slot');
-    letter.textContent = k;
-    const nameInput = document.createElement('input');
-    nameInput.className = 'track-name-input'; nameInput.type = 'text';
-    nameInput.placeholder = 'Track name...';
-    nameInput.value = TRACKS[k] ? TRACKS[k].label : '';
-    nameInput.addEventListener('change', () => { if (TRACKS[k]) TRACKS[k].label = nameInput.value; });
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file'; fileInput.accept = 'audio/*';
-    const uploadBtn = document.createElement('button');
-    uploadBtn.className = 'upload-btn';
-    uploadBtn.textContent = TRACKS[k] ? 'Replace' : 'Upload';
-    uploadBtn.onclick = () => fileInput.click();
-    fileInput.addEventListener('change', async () => {
-      const file = fileInput.files[0]; if (!file) return;
-      uploadBtn.textContent = '...'; uploadBtn.classList.add('uploading');
-      try {
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/audio/${k}.mp3`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY,
-            'Content-Type': 'audio/mpeg', 'x-upsert': 'true' },
-          body: file
-        });
-        if (res.ok || res.status === 200 || res.status === 201) {
-          TRACKS[k] = { label: nameInput.value || file.name.replace(/\.[^.]+$/, ''), url: `${STORAGE_URL}/${k}.mp3?t=${Date.now()}` };
-          if (!nameInput.value) nameInput.value = TRACKS[k].label;
-          letter.className = 'track-letter'; uploadBtn.textContent = 'Replace';
-        } else { uploadBtn.textContent = 'Error'; }
-      } catch(e) { uploadBtn.textContent = 'Error'; }
-      uploadBtn.classList.remove('uploading');
-    });
-    row.appendChild(letter); row.appendChild(nameInput); row.appendChild(fileInput); row.appendChild(uploadBtn);
-    container.appendChild(row);
-  });
-}
-
-// ── SETTINGS ──
-async function loadSettings() {
-  try {
-    const res = await sbFetch('breathing_settings?select=key,value');
-    const rows = await res.json();
-    if (Array.isArray(rows)) rows.forEach(r => {
-      if (r.key === 'intervals') Object.assign(intervals, JSON.parse(r.value));
-      if (r.key === 'duration')  durMin = parseInt(r.value);
-      if (r.key === 'tab')       currentTab = r.value;
-      if (r.key === 'track')     currentTrack = r.value;
-    });
-  } catch(e) {
-    try {
-      const s = JSON.parse(localStorage.getItem('breath_settings') || '{}');
-      if (s.intervals) Object.assign(intervals, s.intervals);
-      if (s.durMin)    durMin = s.durMin;
-      if (s.tab)       currentTab = s.tab;
-      if (s.track)     currentTrack = s.track;
-    } catch(e2) {}
-  }
-  ['inhale','holdin','exhale','holdout'].forEach(k => document.getElementById('val-'+k).textContent = intervals[k]);
-  document.getElementById('dur-slider').value = durMin;
-  document.getElementById('dur-label').textContent = durMin + ' min';
-  // Apply tab UI
-  switchTab(currentTab);
-  buildTrackToggle();
-}
-function schedSaveSettings() {
-  clearTimeout(settingsSaveTimer);
-  settingsSaveTimer = setTimeout(saveSettings, 1500);
-}
-async function saveSettings() {
-  const payload = [
-    { key: 'intervals', value: JSON.stringify(intervals) },
-    { key: 'duration',  value: String(durMin) },
-    { key: 'tab',       value: currentTab },
-    { key: 'track',     value: currentTrack },
-  ];
-  localStorage.setItem('breath_settings', JSON.stringify({ intervals, durMin, tab: currentTab, track: currentTrack }));
-  try {
-    for (const row of payload) {
-      await sbFetch(`breathing_settings?key=eq.${row.key}`, { method: 'DELETE' });
-      await sbFetch('breathing_settings', { method: 'POST', body: JSON.stringify(row) });
-    }
-  } catch(e) {}
-}
-
-// ── CONTROLS ──
-function adj(key, delta) {
-  intervals[key] = Math.max(0, Math.min(20, intervals[key] + delta));
-  document.getElementById('val-'+key).textContent = intervals[key];
-  schedSaveSettings();
-}
-function updateDur() {
-  durMin = parseInt(document.getElementById('dur-slider').value);
-  document.getElementById('dur-label').textContent = durMin + ' min';
-  schedSaveSettings();
-}
-
-// ── BREATHING SESSION ──
-let windingDown = false; // true when timer expired, waiting for exhale to finish
-
-function toggleSession() {
-  if (running) stopAll(true);
-  else startBreathing();
-}
-function startBreathing() {
-  unlockBells();
-  running = true;
-  windingDown = false;
-  sessionEndTime = Date.now() + durMin * 60 * 1000;
-  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
-  document.getElementById('start-btn').textContent = 'Stop';
-  document.getElementById('start-btn').classList.add('running');
-  document.getElementById('med-player').classList.remove('visible');
-  // Pre-load audio for B&M so iOS allows autoplay later
-  if (currentTab === 'bm' && TRACKS[currentTrack]) {
-    const a = document.getElementById('med-audio');
-    a.src = TRACKS[currentTrack].url;
-    a.load();
-  }
-  currentPhaseIdx = 0;
-  startPhase();
-}
-function startPhase() {
-  if (!running) return;
-  const phase = phases[currentPhaseIdx];
-  const secs = intervals[phase.key];
-  if (secs === 0) { currentPhaseIdx = (currentPhaseIdx+1)%4; startPhase(); return; }
-  phaseSecondsLeft = secs;
-
-  // If winding down, only play the ending exhale tone (lower), then finish after
-  const isEndingExhale = windingDown && phase.key === 'exhale';
-  if (isEndingExhale) {
-    playBell('exhale', 0.85); // ending bell
-    if (navigator.vibrate) navigator.vibrate(150);
-  } else {
-    cue(phase.key);
-  }
-
-  updateCircle(phase, secs, secs);
-  clearInterval(phaseTimer);
-  phaseTimer = setInterval(() => {
-    phaseSecondsLeft--;
-    const remaining = sessionEndTime - Date.now();
-
-    // Timer expired — set winding down flag, finish current phase normally
-    if (remaining <= 0 && !windingDown) {
-      windingDown = true;
-    }
-
-    if (phaseSecondsLeft <= 0) {
-      clearInterval(phaseTimer);
-      // If winding down and we just finished exhale → done
-      if (windingDown && phase.key === 'exhale') {
-        breathingComplete();
-      } else {
-        currentPhaseIdx = (currentPhaseIdx+1)%4;
-        startPhase();
-      }
-    } else {
-      updateCircle(phase, phaseSecondsLeft, secs);
-    }
-  }, 1000);
-}
-function updateCircle(phase, left, total) {
-  document.getElementById('circle').className = 'circle-outer ' + phase.circle;
-  document.getElementById('phase-label').textContent = phase.label;
-  document.getElementById('phase-count').textContent = left;
-  const remaining = Math.max(0, sessionEndTime - Date.now());
-  document.getElementById('phase-sub').textContent = fmt(remaining/1000) + ' left';
-}
-function resetCircle(label) {
-  document.getElementById('circle').className = 'circle-outer';
-  document.getElementById('phase-label').textContent = label;
-  document.getElementById('phase-count').textContent = '—';
-  document.getElementById('phase-sub').textContent = '';
-}
-async function breathingComplete() {
-  if (currentTab === 'breathe') {
-    running = false;
-    if (wakeLock) { wakeLock.release(); wakeLock = null; }
-    document.getElementById('start-btn').textContent = 'Start';
-    document.getElementById('start-btn').classList.remove('running');
-    resetCircle('Done ✓');
-    const ds = dateStr(today);
-    if (!(done[ds] && done[ds].includes('breathing'))) await addDone(ds, 'breathing');
-  } else {
-    resetCircle('Meditating');
-    startMedAudio(true);
-  }
-}
-async function stopAll(manual) {
-  running = false;
-  windingDown = false;
-  clearInterval(phaseTimer); clearInterval(medTimer);
-  if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  document.getElementById('start-btn').textContent = 'Start';
-  document.getElementById('start-btn').classList.remove('running');
-  document.getElementById('med-player').classList.remove('visible');
-  resetCircle('Ready');
-  const a = document.getElementById('med-audio');
-  a.pause(); a.currentTime = 0; a.onended = null;
-}
-
-// ── MED AUDIO (shared by B&M and Meditate tab) ──
+// ── AUDIO ──
 function fadeInAudio(a) {
   a.volume = 0;
   const fadeStart = Date.now();
@@ -704,78 +239,40 @@ function fadeInAudio(a) {
   }, 100);
 }
 
-function startMedAudio(isBM) {
+// ── MEDITATE ──
+function openMeditateDay(ds, d) {
+  activeMedDateStr = ds;
+  const isDone = !!(done[ds] && done[ds].includes('meditation'));
   const track = TRACKS[currentTrack];
-  if (!track) { if (isBM) finishBM(); return; }
+  if (!track) return;
   const a = document.getElementById('med-audio');
-  a.src = track.url;
-  a.currentTime = 0;
+  a.src = track.url; a.currentTime = 0;
   fadeInAudio(a);
   a.play().catch(()=>{});
+  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
   document.getElementById('med-player').classList.add('visible');
   document.getElementById('med-player-label').textContent = track.label;
   document.getElementById('med-prog').style.width = '0%';
+  const doneBtn = document.getElementById('med-done-btn');
+  doneBtn.textContent = isDone ? '↩ Undo' : '✓ Done';
+  doneBtn.classList.toggle('undo', isDone);
+  doneBtn.classList.add('visible');
+  document.getElementById('med-stop-btn').classList.add('visible');
   clearInterval(medTimer);
   medTimer = setInterval(updateMedProgress, 1000);
   a.onended = async () => {
     clearInterval(medTimer);
     document.getElementById('med-prog').style.width = '100%';
-    if (isBM) await finishBM();
-    else await finishMeditate(true);
+    await finishMeditate(true);
   };
 }
+
 function updateMedProgress() {
   const a = document.getElementById('med-audio');
   const dur = a.duration||0, cur = a.currentTime||0;
   document.getElementById('med-prog').style.width = (dur>0?(cur/dur)*100:0)+'%';
   document.getElementById('med-cur').textContent = fmt(cur);
   document.getElementById('med-tot').textContent = fmt(dur);
-}
-async function finishBM() {
-  running = false;
-  clearInterval(medTimer);
-  if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  document.getElementById('start-btn').textContent = 'Start';
-  document.getElementById('start-btn').classList.remove('running');
-  resetCircle('Done ✓');
-  const ds = dateStr(today);
-  if (!(done[ds] && done[ds].includes('breathing')))  await addDone(ds, 'breathing');
-  if (!(done[ds] && done[ds].includes('meditation'))) await addDone(ds, 'meditation');
-}
-
-// ── MEDITATE TAB ──
-function openMeditateDay(ds, d) {
-  activeMedDateStr = ds;
-  const isDone = !!(done[ds] && done[ds].includes('meditation'));
-  const track = TRACKS[currentTrack];
-  if (!track) return;
-
-  // Unlock + start audio
-  getAudioCtx();
-  const a = document.getElementById('med-audio');
-  a.src = track.url; a.currentTime = 0;
-  fadeInAudio(a);
-  a.play().catch(()=>{});
-  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
-
-  document.getElementById('med-player').classList.add('visible');
-  document.getElementById('med-player-label').textContent = track.label;
-  document.getElementById('med-prog').style.width = '0%';
-
-  const doneBtn = document.getElementById('med-done-btn');
-  doneBtn.textContent = isDone ? '↩ Undo' : '✓ Done';
-  doneBtn.classList.toggle('undo', isDone);
-  doneBtn.classList.add('visible');
-  document.getElementById('med-stop-btn').classList.add('visible');
-
-  clearInterval(medTimer);
-  medTimer = setInterval(updateMedProgress, 1000);
-
-  a.onended = async () => {
-    clearInterval(medTimer);
-    document.getElementById('med-prog').style.width = '100%';
-    await finishMeditate(true);
-  };
 }
 
 async function finishMeditate(autoComplete) {
@@ -792,9 +289,9 @@ async function finishMeditate(autoComplete) {
 function updateMedDoneBtn() {
   if (!activeMedDateStr) return;
   const isDone = !!(done[activeMedDateStr] && done[activeMedDateStr].includes('meditation'));
-  const doneBtn = document.getElementById('med-done-btn');
-  doneBtn.textContent = isDone ? '↩ Undo' : '✓ Done';
-  doneBtn.classList.toggle('undo', isDone);
+  const btn = document.getElementById('med-done-btn');
+  btn.textContent = isDone ? '↩ Undo' : '✓ Done';
+  btn.classList.toggle('undo', isDone);
 }
 
 function stopMeditate() {
@@ -813,8 +310,6 @@ async function handleMedDoneBtn() {
   const isDone = !!(done[activeMedDateStr] && done[activeMedDateStr].includes('meditation'));
   if (isDone) await removeDone(activeMedDateStr, 'meditation');
   else await addDone(activeMedDateStr, 'meditation');
-  updateMedDoneBtn();
-  // stop audio
   const a = document.getElementById('med-audio');
   a.pause(); a.currentTime = 0; a.onended = null;
   clearInterval(medTimer);
@@ -836,7 +331,7 @@ async function loadDone() {
     });
   } catch(e) {
     const arr = JSON.parse(localStorage.getItem('done') || '[]');
-    done = {}; arr.forEach(d => { done[d] = ['breathing']; });
+    done = {}; arr.forEach(d => { done[d] = ['meditation']; });
   }
   buildGrid();
   document.getElementById('streak-label').textContent = Object.keys(done).length + ' done';
@@ -879,15 +374,57 @@ function buildGrid() {
       mo.textContent = d.toLocaleString('default', { month: 'short' });
       el.appendChild(mo);
     }
-    el.addEventListener('click', () => {
-      if (currentTab === 'meditate') openMeditateDay(ds, d);
-      else openConfirm(ds, d);
-    });
+    el.addEventListener('click', () => openMeditateDay(ds, d));
     grid.appendChild(el);
   }
 }
 
-// ── CONFIRM (breathe/bm tabs) ──
+// ── ADMIN ──
+function openAdmin() { buildTrackRows(); document.getElementById('admin-panel').classList.add('visible'); }
+function closeAdmin() { document.getElementById('admin-panel').classList.remove('visible'); buildTrackToggle(); }
+function adminBgClick(e) { if (e.target === document.getElementById('admin-panel')) closeAdmin(); }
+function buildTrackRows() {
+  const container = document.getElementById('track-rows');
+  container.innerHTML = '';
+  LETTERS.forEach(k => {
+    const row = document.createElement('div'); row.className = 'track-row';
+    const letter = document.createElement('div');
+    letter.className = 'track-letter' + (TRACKS[k] ? '' : ' empty-slot');
+    letter.textContent = k;
+    const nameInput = document.createElement('input');
+    nameInput.className = 'track-name-input'; nameInput.type = 'text';
+    nameInput.placeholder = 'Track name...';
+    nameInput.value = TRACKS[k] ? TRACKS[k].label : '';
+    nameInput.addEventListener('change', () => { if (TRACKS[k]) TRACKS[k].label = nameInput.value; });
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'audio/*';
+    const uploadBtn = document.createElement('button');
+    uploadBtn.className = 'upload-btn';
+    uploadBtn.textContent = TRACKS[k] ? 'Replace' : 'Upload';
+    uploadBtn.onclick = () => fileInput.click();
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0]; if (!file) return;
+      uploadBtn.textContent = '...';
+      try {
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/audio/${k}.mp3`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY,
+            'Content-Type': 'audio/mpeg', 'x-upsert': 'true' },
+          body: file
+        });
+        if (res.ok || res.status === 200 || res.status === 201) {
+          TRACKS[k] = { label: nameInput.value || file.name.replace(/\.[^.]+$/, ''), url: `${STORAGE_URL}/${k}.mp3?t=${Date.now()}` };
+          if (!nameInput.value) nameInput.value = TRACKS[k].label;
+          letter.className = 'track-letter'; uploadBtn.textContent = 'Replace';
+        } else { uploadBtn.textContent = 'Error'; }
+      } catch(e) { uploadBtn.textContent = 'Error'; }
+    });
+    row.appendChild(letter); row.appendChild(nameInput); row.appendChild(fileInput); row.appendChild(uploadBtn);
+    container.appendChild(row);
+  });
+}
+
+// ── CONFIRM ──
 function openConfirm(ds, d) {
   confirmDateStr = ds;
   const sources = done[ds] || [];
@@ -903,21 +440,14 @@ async function confirmAction() {
   if (confirmIsDone) {
     const sources = [...(done[confirmDateStr] || [])];
     for (const s of sources) await removeDone(confirmDateStr, s);
-  } else {
-    await addDone(confirmDateStr, currentTab === 'breathe' ? 'breathing' : 'breathing');
-  }
+  } else { await addDone(confirmDateStr, 'meditation'); }
   closeConfirm();
 }
 function confirmBgClick(e) { if (e.target === document.getElementById('confirm')) closeConfirm(); }
 
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && running && 'wakeLock' in navigator)
-    navigator.wakeLock.request('screen').then(l => { wakeLock = l; }).catch(()=>{});
-});
-
-loadSettings();
+// ── INIT ──
+buildTrackToggle();
 loadDone();
-preloadBells();
 </script>
 </body>
 </html>
